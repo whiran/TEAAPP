@@ -121,6 +121,17 @@ export default function RegionalMap() {
         }
     }, []);
 
+    // Tea-growing districts to filter from official GeoJSON
+    const TEA_DISTRICTS: Record<string, string> = {
+        'Galle District': 'Galle',
+        'Matara District': 'Matara',
+        'Kalutara District': 'Kalutara',
+        'Ratnapura District': 'Ratnapura',
+        'Badulla District': 'Badulla',
+        'Kandy District': 'Kandy',
+        'Nuwara Eliya District': 'Nuwara Eliya',
+    };
+
     // Load data files
     useEffect(() => {
         const loadData = async () => {
@@ -128,12 +139,29 @@ export default function RegionalMap() {
                 const [atcRes, tiRes, distRes] = await Promise.all([
                     fetch('/data/atc-regions.json'),
                     fetch('/data/ti-regions.json'),
-                    fetch('/data/districts.geojson'),
+                    fetch('/data/sri-lanka-districts-full.geojson'),
                 ]);
 
                 if (atcRes.ok) setAtcRegions(await atcRes.json());
                 if (tiRes.ok) setTiRegions(await tiRes.json());
-                if (distRes.ok) setDistricts(await distRes.json());
+                if (distRes.ok) {
+                    const fullGeoJson = await distRes.json();
+                    // Filter for only tea-growing districts
+                    const teaDistricts = {
+                        ...fullGeoJson,
+                        features: fullGeoJson.features
+                            .filter((f: any) => TEA_DISTRICTS[f.properties.shapeName])
+                            .map((f: any) => ({
+                                ...f,
+                                properties: {
+                                    ...f.properties,
+                                    name: TEA_DISTRICTS[f.properties.shapeName],
+                                    color: districtColors[TEA_DISTRICTS[f.properties.shapeName]] || '#666666'
+                                }
+                            }))
+                    };
+                    setDistricts(teaDistricts);
+                }
             } catch (error) {
                 console.error('Error loading data:', error);
             }
