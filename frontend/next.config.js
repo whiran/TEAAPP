@@ -8,6 +8,7 @@ const nextConfig = {
     // Environment variables
     env: {
         NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000',
+        NEXT_PUBLIC_MP_WINDY_API_KEY: process.env.NEXT_PUBLIC_MP_WINDY_API_KEY || '',
     },
 }
 

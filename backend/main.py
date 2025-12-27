@@ -4,7 +4,7 @@ from contextlib import asynccontextmanager
 import os
 
 # Import routers (add as you create them)
-# from api import tea_lands, analytics
+from api import tea_lands, weather
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -61,5 +61,6 @@ async def health_check():
     }
 
 # Include routers (add as you create them)
-# app.include_router(tea_lands.router, prefix="/api/tea-lands", tags=["Tea Lands"])
+app.include_router(tea_lands.router, prefix="/api/tea-lands", tags=["Tea Lands"])
+app.include_router(weather.router, prefix="/api/weather", tags=["Weather"])
 # app.include_router(analytics.router, prefix="/api/analytics", tags=["Analytics"])
