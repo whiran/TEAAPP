@@ -6,6 +6,8 @@ import 'leaflet/dist/leaflet.css';
 import 'leaflet-draw/dist/leaflet.draw.css';
 import { DistrictWeatherCard, TIRegionWeatherCard, WeatherData } from '../weather/WeatherCard';
 import { useTheme } from '../ThemeProvider';
+import Anemometer from '../weather/Anemometer';
+import WeatherAlerts, { WeatherAlert, generateWeatherAlerts } from '../weather/WeatherAlerts';
 
 // Types
 interface ATCRegion {
@@ -71,6 +73,13 @@ export default function RegionalMap() {
     const [tiWeather, setTiWeather] = useState<WeatherData | null>(null);
     const [isLoadingWeather, setIsLoadingWeather] = useState(false);
 
+    // Selected region for anemometer
+    const [selectedRegion, setSelectedRegion] = useState<{ name: string; weather: WeatherData } | null>(null);
+
+    // Weather alerts
+    const [weatherAlerts, setWeatherAlerts] = useState<WeatherAlert[]>([]);
+    const [hasInitializedBounds, setHasInitializedBounds] = useState(false);
+
     // Unique districts from data
     const uniqueDistricts = Array.from(new Set([...atcRegions.map(a => a.district), ...tiRegions.map(t => t.district)])).sort();
 
@@ -80,16 +89,43 @@ export default function RegionalMap() {
             const response = await fetch(`http://localhost:8000/api/weather/risk?lat=${lat}&lon=${lon}`);
             if (response.ok) {
                 const data = await response.json();
+
+                // Occasionally generate extreme conditions for demo (20% chance)
+                const isExtreme = Math.random() < 0.2;
+                const extremeType = Math.floor(Math.random() * 4);
+
+                let windSpeed = Math.round(5 + Math.random() * 15);
+                let humidity = Math.round(70 + Math.random() * 25);
+                let precipitation = Math.round(Math.random() * 5 * 10) / 10;
+                let temperature = Math.round(20 + Math.random() * 10);
+
+                if (isExtreme) {
+                    switch (extremeType) {
+                        case 0: // High wind
+                            windSpeed = Math.round(45 + Math.random() * 30);
+                            break;
+                        case 1: // Heavy rain
+                            precipitation = Math.round(60 + Math.random() * 50);
+                            break;
+                        case 2: // Extreme humidity
+                            humidity = Math.round(96 + Math.random() * 3);
+                            break;
+                        case 3: // Heat wave
+                            temperature = Math.round(38 + Math.random() * 5);
+                            break;
+                    }
+                }
+
                 // Transform to WeatherData format
                 return {
-                    temperature: Math.round(20 + Math.random() * 10),
-                    feelsLike: Math.round(22 + Math.random() * 10),
-                    humidity: Math.round(70 + Math.random() * 25),
-                    windSpeed: Math.round(5 + Math.random() * 15),
+                    temperature,
+                    feelsLike: Math.round(temperature + 2),
+                    humidity,
+                    windSpeed,
                     windDirection: ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'][Math.floor(Math.random() * 8)],
                     pressure: Math.round(1010 + Math.random() * 10),
                     visibility: Math.round(5 + Math.random() * 10),
-                    precipitation: Math.round(Math.random() * 5 * 10) / 10,
+                    precipitation,
                     clouds: Math.round(30 + Math.random() * 60),
                     condition: ['clear', 'clouds', 'rain', 'drizzle'][Math.floor(Math.random() * 4)],
                     icon: '☀️',
@@ -309,6 +345,42 @@ export default function RegionalMap() {
                             setDistrictWeather(weather);
                             setIsLoadingWeather(false);
                         },
+                        click: async (e: any) => {
+                            const bounds = e.target.getBounds();
+                            const center = bounds.getCenter();
+
+                            // Fetch weather for selected region
+                            const weather = await fetchWeather(center.lat, center.lng);
+                            if (weather) {
+                                setSelectedRegion({
+                                    name: feature.properties.name,
+                                    weather: weather
+                                });
+
+                                // Generate alerts based on weather conditions
+                                const alerts = generateWeatherAlerts({
+                                    windSpeed: weather.windSpeed,
+                                    humidity: weather.humidity,
+                                    precipitation: weather.precipitation,
+                                    temperature: weather.temperature,
+                                    pressure: weather.pressure,
+                                    condition: weather.condition,
+                                }, feature.properties.name);
+
+                                if (alerts.length > 0) {
+                                    setWeatherAlerts(prev => {
+                                        // Avoid duplicate alerts
+                                        const newAlerts = alerts.filter(a =>
+                                            !prev.some(p => p.type === a.type && p.locationName === a.locationName)
+                                        );
+                                        return [...newAlerts, ...prev].slice(0, 5); // Max 5 alerts
+                                    });
+                                }
+                            }
+
+                            // Zoom to district
+                            map.fitBounds(bounds, { padding: [50, 50] });
+                        },
                         mouseout: (e: any) => {
                             geoJsonLayer.resetStyle(e.target);
                             setHoveredDistrict(null);
@@ -326,10 +398,19 @@ export default function RegionalMap() {
             }).addTo(map);
 
             geoJsonLayerRef.current = geoJsonLayer;
+
+            // Auto-zoom to fit all districts on first load
+            if (!hasInitializedBounds) {
+                const bounds = geoJsonLayer.getBounds();
+                if (bounds.isValid()) {
+                    map.fitBounds(bounds, { padding: [30, 30], maxZoom: 9 });
+                    setHasInitializedBounds(true);
+                }
+            }
         };
 
         addDistricts();
-    }, [districts, selectedDistrict, fetchWeather]);
+    }, [districts, selectedDistrict, fetchWeather, hasInitializedBounds]);
 
     // Add ATC markers
     useEffect(() => {
@@ -539,6 +620,22 @@ export default function RegionalMap() {
                     position={hoveredTI.position}
                 />
             )}
+
+            {/* Anemometer - Right Side */}
+            <div className="absolute top-4 right-4 z-[1000]">
+                <Anemometer
+                    windSpeed={selectedRegion?.weather?.windSpeed || districtWeather?.windSpeed || 0}
+                    windDirection={selectedRegion?.weather?.windDirection || districtWeather?.windDirection || 'N'}
+                    isVisible={true}
+                    locationName={selectedRegion?.name || hoveredDistrict?.name || 'Select a region'}
+                />
+            </div>
+
+            {/* Weather Alerts */}
+            <WeatherAlerts
+                alerts={weatherAlerts}
+                onDismiss={(id) => setWeatherAlerts(prev => prev.filter(a => a.id !== id))}
+            />
 
             {/* Styles */}
             <style jsx global>{`
