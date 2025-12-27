@@ -1,9 +1,10 @@
 'use client';
 
 import { useEffect, useRef, useState, useCallback } from 'react';
-import type { Map, FeatureGroup } from 'leaflet';
+import type { Map, FeatureGroup, TileLayer } from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import 'leaflet-draw/dist/leaflet.draw.css';
+import { useTheme } from '../ThemeProvider';
 
 interface TeaEstate {
     id: number;
@@ -42,6 +43,8 @@ export default function WeatherMap() {
     const mapInstanceRef = useRef<Map | null>(null);
     const drawnItemsRef = useRef<FeatureGroup | null>(null);
     const windyInstanceRef = useRef<any>(null);
+    const tileLayerRef = useRef<TileLayer | null>(null);
+    const { theme } = useTheme();
 
     // State for weather layer toggle
     const [weatherLayer, setWeatherLayer] = useState<'rain' | 'wind'>('rain');
@@ -114,8 +117,13 @@ export default function WeatherMap() {
                 // Add zoom control to bottom right
                 L.control.zoom({ position: 'bottomright' }).addTo(map);
 
-                // Add CartoDB Dark Matter tile layer for modern look
-                L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+                // Add tile layer based on current theme
+                const isDark = document.documentElement.classList.contains('dark');
+                const tileUrl = isDark
+                    ? 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png'
+                    : 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png';
+
+                tileLayerRef.current = L.tileLayer(tileUrl, {
                     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
                     subdomains: 'abcd',
                     maxZoom: 20
@@ -292,6 +300,37 @@ export default function WeatherMap() {
         }
     }, [weatherLayer, isWindyLoaded]);
 
+    // Switch tile layer when theme changes
+    useEffect(() => {
+        if (!mapInstanceRef.current || !tileLayerRef.current) return;
+
+        const switchTileLayer = async () => {
+            const L = (await import('leaflet')).default;
+            const map = mapInstanceRef.current!;
+
+            // Remove old tile layer
+            if (tileLayerRef.current) {
+                map.removeLayer(tileLayerRef.current);
+            }
+
+            // Add new tile layer based on theme
+            const tileUrl = theme === 'dark'
+                ? 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png'
+                : 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png';
+
+            tileLayerRef.current = L.tileLayer(tileUrl, {
+                attribution: '&copy; OpenStreetMap &copy; CARTO',
+                subdomains: 'abcd',
+                maxZoom: 20
+            }).addTo(map);
+
+            // Ensure tile layer is below other layers
+            tileLayerRef.current.bringToBack();
+        };
+
+        switchTileLayer();
+    }, [theme]);
+
     // Close panel handler
     const closePanel = () => {
         setSelectedEstate(null);
@@ -308,16 +347,16 @@ export default function WeatherMap() {
             />
 
             {/* Weather Layer Toggle Control */}
-            <div className="absolute top-4 left-4 z-[1000] bg-gray-900/95 backdrop-blur-md rounded-xl shadow-2xl p-4 border border-gray-700">
-                <h3 className="text-white font-semibold text-sm mb-3 flex items-center gap-2">
+            <div className="absolute top-4 left-4 z-[1000] bg-white/95 dark:bg-gray-900/95 backdrop-blur-md rounded-xl shadow-2xl p-4 border border-gray-200 dark:border-gray-700 transition-colors duration-300">
+                <h3 className="text-gray-900 dark:text-white font-semibold text-sm mb-3 flex items-center gap-2">
                     <span>🌤️</span> Weather Layers
                 </h3>
                 <div className="flex flex-col gap-2">
                     <button
                         onClick={() => setWeatherLayer('rain')}
                         className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${weatherLayer === 'rain'
-                                ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/30'
-                                : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
+                            ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/30'
+                            : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
                             }`}
                     >
                         <span>🌧️</span> Rain Accumulation
@@ -325,8 +364,8 @@ export default function WeatherMap() {
                     <button
                         onClick={() => setWeatherLayer('wind')}
                         className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${weatherLayer === 'wind'
-                                ? 'bg-purple-600 text-white shadow-lg shadow-purple-500/30'
-                                : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
+                            ? 'bg-purple-600 text-white shadow-lg shadow-purple-500/30'
+                            : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
                             }`}
                     >
                         <span>💨</span> Wind Gusts
@@ -334,22 +373,22 @@ export default function WeatherMap() {
                 </div>
 
                 {/* Layer Legend */}
-                <div className="mt-4 pt-3 border-t border-gray-700">
-                    <p className="text-xs text-gray-400 mb-2">Legend</p>
+                <div className="mt-4 pt-3 border-t border-gray-200 dark:border-gray-700">
+                    <p className="text-xs text-gray-600 dark:text-gray-400 mb-2">Legend</p>
                     <div className="flex items-center gap-1">
                         <div className="w-4 h-2 bg-blue-300 rounded-sm"></div>
                         <div className="w-4 h-2 bg-blue-500 rounded-sm"></div>
                         <div className="w-4 h-2 bg-blue-700 rounded-sm"></div>
                         <div className="w-4 h-2 bg-purple-600 rounded-sm"></div>
                         <div className="w-4 h-2 bg-red-500 rounded-sm"></div>
-                        <span className="text-xs text-gray-400 ml-2">Low → High</span>
+                        <span className="text-xs text-gray-600 dark:text-gray-400 ml-2">Low → High</span>
                     </div>
                 </div>
             </div>
 
             {/* Estate Details Panel */}
             {selectedEstate && (
-                <div className="absolute top-4 right-4 z-[1000] w-80 bg-gray-900/95 backdrop-blur-md rounded-xl shadow-2xl border border-gray-700 overflow-hidden animate-slideIn">
+                <div className="absolute top-4 right-4 z-[1000] w-80 bg-white/95 dark:bg-gray-900/95 backdrop-blur-md rounded-xl shadow-2xl border border-gray-200 dark:border-gray-700 overflow-hidden animate-slideIn transition-colors duration-300">
                     {/* Header */}
                     <div className="bg-gradient-to-r from-green-600 to-emerald-700 px-4 py-3 flex items-center justify-between">
                         <h3 className="text-white font-bold flex items-center gap-2">
@@ -364,15 +403,15 @@ export default function WeatherMap() {
                     </div>
 
                     {/* Estate Info */}
-                    <div className="p-4 border-b border-gray-700">
+                    <div className="p-4 border-b border-gray-200 dark:border-gray-700">
                         <div className="grid grid-cols-2 gap-3">
-                            <div className="bg-gray-800 rounded-lg p-3">
-                                <p className="text-xs text-gray-400">Area</p>
-                                <p className="text-lg font-bold text-green-400">{selectedEstate.area} ha</p>
+                            <div className="bg-gray-100 dark:bg-gray-800 rounded-lg p-3 transition-colors">
+                                <p className="text-xs text-gray-600 dark:text-gray-400">Area</p>
+                                <p className="text-lg font-bold text-green-600 dark:text-green-400">{selectedEstate.area} ha</p>
                             </div>
-                            <div className="bg-gray-800 rounded-lg p-3">
-                                <p className="text-xs text-gray-400">Coordinates</p>
-                                <p className="text-sm font-mono text-gray-300">
+                            <div className="bg-gray-100 dark:bg-gray-800 rounded-lg p-3 transition-colors">
+                                <p className="text-xs text-gray-600 dark:text-gray-400">Coordinates</p>
+                                <p className="text-sm font-mono text-gray-700 dark:text-gray-300">
                                     {selectedEstate.position[0].toFixed(2)}°, {selectedEstate.position[1].toFixed(2)}°
                                 </p>
                             </div>
@@ -381,7 +420,7 @@ export default function WeatherMap() {
 
                     {/* Risk Assessment */}
                     <div className="p-4">
-                        <h4 className="text-white font-semibold text-sm mb-3 flex items-center gap-2">
+                        <h4 className="text-gray-900 dark:text-white font-semibold text-sm mb-3 flex items-center gap-2">
                             <span>⚠️</span> Disease Risk Assessment
                         </h4>
 
@@ -393,10 +432,10 @@ export default function WeatherMap() {
                             <>
                                 {/* Risk Badge */}
                                 <div className={`rounded-lg p-4 mb-4 ${riskData.risk_level === 'HIGH'
-                                        ? 'bg-red-900/50 border border-red-500 animate-pulse'
-                                        : riskData.risk_level === 'MODERATE'
-                                            ? 'bg-yellow-900/50 border border-yellow-500'
-                                            : 'bg-green-900/50 border border-green-500'
+                                    ? 'bg-red-900/50 border border-red-500 animate-pulse'
+                                    : riskData.risk_level === 'MODERATE'
+                                        ? 'bg-yellow-900/50 border border-yellow-500'
+                                        : 'bg-green-900/50 border border-green-500'
                                     }`}>
                                     <div className="flex items-center gap-3">
                                         <span className="text-3xl">
@@ -404,10 +443,10 @@ export default function WeatherMap() {
                                         </span>
                                         <div>
                                             <p className={`font-bold text-lg ${riskData.risk_level === 'HIGH'
-                                                    ? 'text-red-400'
-                                                    : riskData.risk_level === 'MODERATE'
-                                                        ? 'text-yellow-400'
-                                                        : 'text-green-400'
+                                                ? 'text-red-400'
+                                                : riskData.risk_level === 'MODERATE'
+                                                    ? 'text-yellow-400'
+                                                    : 'text-green-400'
                                                 }`}>
                                                 {riskData.risk_level === 'HIGH'
                                                     ? '⚠️ Blister Blight Alert!'
@@ -436,14 +475,14 @@ export default function WeatherMap() {
                                                 <div
                                                     key={idx}
                                                     className={`rounded-lg p-2 text-center ${day.is_risk_day
-                                                            ? 'bg-red-900/30 border border-red-700'
-                                                            : 'bg-gray-800'
-                                                        }`}
+                                                        ? 'bg-red-100 dark:bg-red-900/30 border border-red-300 dark:border-red-700'
+                                                        : 'bg-gray-100 dark:bg-gray-800'
+                                                        } transition-colors`}
                                                 >
                                                     <p className="text-2xl mb-1">{day.weather_icon}</p>
-                                                    <p className="text-xs text-gray-400">{day.date.slice(5)}</p>
-                                                    <p className="text-sm font-bold text-white">{day.temperature}°C</p>
-                                                    <p className="text-xs text-blue-400">{day.humidity}%</p>
+                                                    <p className="text-xs text-gray-600 dark:text-gray-400">{day.date.slice(5)}</p>
+                                                    <p className="text-sm font-bold text-gray-900 dark:text-white">{day.temperature}°C</p>
+                                                    <p className="text-xs text-blue-600 dark:text-blue-400">{day.humidity}%</p>
                                                 </div>
                                             ))}
                                         </div>
@@ -452,7 +491,7 @@ export default function WeatherMap() {
                             </>
                         ) : (
                             <div className="text-center py-4">
-                                <p className="text-gray-400 text-sm">Unable to load risk data</p>
+                                <p className="text-gray-600 dark:text-gray-400 text-sm">Unable to load risk data</p>
                                 <button
                                     onClick={() => fetchRiskData(selectedEstate.position[0], selectedEstate.position[1])}
                                     className="mt-2 px-4 py-2 bg-green-600 text-white rounded-lg text-sm hover:bg-green-700 transition-colors"

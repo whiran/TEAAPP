@@ -24,6 +24,15 @@
     --input: 214.3 31.8% 91.4%;
     --ring: 142 86% 28%;
     --radius: 0.5rem;
+    
+    /* Custom theme colors */
+    --theme-bg: 245 245 245;
+    --theme-bg-secondary: 229 231 235;
+    --theme-text: 17 24 39;
+    --theme-text-muted: 107 114 128;
+    --theme-border: 209 213 219;
+    --theme-header-bg: 255 255 255 / 0.9;
+    --theme-panel-bg: 255 255 255 / 0.95;
   }
 
   .dark {
@@ -46,6 +55,15 @@
     --border: 217.2 32.6% 17.5%;
     --input: 217.2 32.6% 17.5%;
     --ring: 142 86% 28%;
+    
+    /* Custom theme colors - dark */
+    --theme-bg: 17 24 39;
+    --theme-bg-secondary: 31 41 55;
+    --theme-text: 243 244 246;
+    --theme-text-muted: 156 163 175;
+    --theme-border: 55 65 81;
+    --theme-header-bg: 17 24 39 / 0.8;
+    --theme-panel-bg: 17 24 39 / 0.95;
   }
 }
 
@@ -64,3 +82,52 @@
   height: 100%;
   z-index: 0;
 }
+
+/* Theme-aware components */
+.theme-bg {
+  @apply bg-gray-100 dark:bg-gray-900;
+}
+
+.theme-header {
+  @apply bg-white/90 dark:bg-gray-900/80 border-gray-200 dark:border-gray-700;
+}
+
+.theme-panel {
+  @apply bg-white/95 dark:bg-gray-900/95 border-gray-200 dark:border-gray-700;
+}
+
+.theme-text {
+  @apply text-gray-900 dark:text-white;
+}
+
+.theme-text-muted {
+  @apply text-gray-600 dark:text-gray-400;
+}
+
+.theme-nav-item {
+  @apply text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800;
+}
+
+.theme-card {
+  @apply bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700;
+}
+
+/* Leaflet popup theme support */
+.light .leaflet-popup-content-wrapper {
+  background: white;
+  color: #1f2937;
+}
+
+.dark .leaflet-popup-content-wrapper {
+  background: #1f2937;
+  color: white;
+}
+
+.light .leaflet-popup-tip {
+  background: white;
+}
+
+.dark .leaflet-popup-tip {
+  background: #1f2937;
+}
+

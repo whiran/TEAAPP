@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import "leaflet/dist/leaflet.css";
+import { ThemeProvider } from "../components/ThemeProvider";
 
 export const metadata: Metadata = {
     title: "Ceylon Tea Intelligence Platform",
@@ -13,9 +14,11 @@ export default function RootLayout({
     children: React.ReactNode;
 }>) {
     return (
-        <html lang="en" suppressHydrationWarning>
-            <body className="antialiased">
-                {children}
+        <html lang="en" className="dark" suppressHydrationWarning>
+            <body className="antialiased bg-gray-900 dark:bg-gray-900">
+                <ThemeProvider>
+                    {children}
+                </ThemeProvider>
             </body>
         </html>
     );

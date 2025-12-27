@@ -1,10 +1,11 @@
 'use client';
 
 import { useEffect, useRef, useState, useCallback } from 'react';
-import type { Map, FeatureGroup, GeoJSON as LeafletGeoJSON, Layer, Marker } from 'leaflet';
+import type { Map, FeatureGroup, GeoJSON as LeafletGeoJSON, Layer, Marker, TileLayer } from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import 'leaflet-draw/dist/leaflet.draw.css';
 import { DistrictWeatherCard, TIRegionWeatherCard, WeatherData } from '../weather/WeatherCard';
+import { useTheme } from '../ThemeProvider';
 
 // Types
 interface ATCRegion {
@@ -52,6 +53,8 @@ export default function RegionalMap() {
     const geoJsonLayerRef = useRef<LeafletGeoJSON | null>(null);
     const atcMarkersRef = useRef<Marker[]>([]);
     const tiMarkersRef = useRef<Marker[]>([]);
+    const tileLayerRef = useRef<TileLayer | null>(null);
+    const { theme } = useTheme();
 
     // State
     const [atcRegions, setAtcRegions] = useState<ATCRegion[]>([]);
@@ -201,8 +204,13 @@ export default function RegionalMap() {
 
                 L.control.zoom({ position: 'bottomright' }).addTo(map);
 
-                // Dark basemap
-                L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+                // Initial basemap based on current theme
+                const isDark = document.documentElement.classList.contains('dark');
+                const tileUrl = isDark
+                    ? 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png'
+                    : 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png';
+
+                tileLayerRef.current = L.tileLayer(tileUrl, {
                     attribution: '&copy; OpenStreetMap &copy; CARTO',
                     subdomains: 'abcd',
                     maxZoom: 20
@@ -222,6 +230,37 @@ export default function RegionalMap() {
             }
         };
     }, []);
+
+    // Switch tile layer when theme changes
+    useEffect(() => {
+        if (!mapInstanceRef.current || !tileLayerRef.current) return;
+
+        const switchTileLayer = async () => {
+            const L = (await import('leaflet')).default;
+            const map = mapInstanceRef.current!;
+
+            // Remove old tile layer
+            if (tileLayerRef.current) {
+                map.removeLayer(tileLayerRef.current);
+            }
+
+            // Add new tile layer based on theme
+            const tileUrl = theme === 'dark'
+                ? 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png'
+                : 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png';
+
+            tileLayerRef.current = L.tileLayer(tileUrl, {
+                attribution: '&copy; OpenStreetMap &copy; CARTO',
+                subdomains: 'abcd',
+                maxZoom: 20
+            }).addTo(map);
+
+            // Ensure tile layer is below other layers
+            tileLayerRef.current.bringToBack();
+        };
+
+        switchTileLayer();
+    }, [theme]);
 
     // Add district boundaries
     useEffect(() => {
@@ -419,18 +458,18 @@ export default function RegionalMap() {
             <div ref={mapContainerRef} className="h-full w-full z-0" style={{ minHeight: '400px' }} />
 
             {/* Control Panel */}
-            <div className="absolute top-4 left-4 z-[1000] bg-gray-900/95 backdrop-blur-md rounded-xl shadow-2xl p-4 border border-gray-700 min-w-[280px]">
-                <h3 className="text-white font-semibold text-sm mb-3 flex items-center gap-2">
+            <div className="absolute top-4 left-4 z-[1000] bg-white/95 dark:bg-gray-900/95 backdrop-blur-md rounded-xl shadow-2xl p-4 border border-gray-200 dark:border-gray-700 min-w-[280px] transition-colors duration-300">
+                <h3 className="text-gray-900 dark:text-white font-semibold text-sm mb-3 flex items-center gap-2">
                     <span>🗺️</span> Regional Control
                 </h3>
 
                 {/* District Filter */}
                 <div className="mb-4">
-                    <label className="text-gray-400 text-xs mb-1 block">Filter by District</label>
+                    <label className="text-gray-600 dark:text-gray-400 text-xs mb-1 block">Filter by District</label>
                     <select
                         value={selectedDistrict}
                         onChange={(e) => setSelectedDistrict(e.target.value)}
-                        className="w-full bg-gray-800 text-white rounded-lg px-3 py-2 text-sm border border-gray-600 focus:border-blue-500 focus:outline-none"
+                        className="w-full bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-white rounded-lg px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 focus:border-blue-500 focus:outline-none transition-colors"
                     >
                         <option value="all">All Districts</option>
                         {uniqueDistricts.map(d => (
@@ -446,9 +485,9 @@ export default function RegionalMap() {
                             type="checkbox"
                             checked={showATC}
                             onChange={(e) => setShowATC(e.target.checked)}
-                            className="w-4 h-4 rounded border-gray-600 bg-gray-800 text-blue-500 focus:ring-blue-500"
+                            className="w-4 h-4 rounded border-gray-300 dark:border-gray-600 bg-gray-100 dark:bg-gray-800 text-blue-500 focus:ring-blue-500"
                         />
-                        <span className="flex items-center gap-2 text-sm text-gray-300 group-hover:text-white">
+                        <span className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300 group-hover:text-gray-900 dark:group-hover:text-white">
                             <span className="w-6 h-6 bg-gradient-to-br from-blue-400 to-blue-600 rounded-md flex items-center justify-center text-xs">🏢</span>
                             ATC Offices ({atcRegions.filter(a => selectedDistrict === 'all' || a.district === selectedDistrict).length})
                         </span>
@@ -458,9 +497,9 @@ export default function RegionalMap() {
                             type="checkbox"
                             checked={showTI}
                             onChange={(e) => setShowTI(e.target.checked)}
-                            className="w-4 h-4 rounded border-gray-600 bg-gray-800 text-orange-500 focus:ring-orange-500"
+                            className="w-4 h-4 rounded border-gray-300 dark:border-gray-600 bg-gray-100 dark:bg-gray-800 text-orange-500 focus:ring-orange-500"
                         />
-                        <span className="flex items-center gap-2 text-sm text-gray-300 group-hover:text-white">
+                        <span className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300 group-hover:text-gray-900 dark:group-hover:text-white">
                             <span className="w-6 h-6 bg-gradient-to-br from-orange-400 to-orange-600 rounded-full flex items-center justify-center text-xs">📍</span>
                             TI Regions ({tiRegions.filter(t => selectedDistrict === 'all' || t.district === selectedDistrict).length})
                         </span>
@@ -468,13 +507,13 @@ export default function RegionalMap() {
                 </div>
 
                 {/* Legend */}
-                <div className="mt-4 pt-3 border-t border-gray-700">
-                    <p className="text-xs text-gray-400 mb-2">District Colors</p>
+                <div className="mt-4 pt-3 border-t border-gray-200 dark:border-gray-700">
+                    <p className="text-xs text-gray-600 dark:text-gray-400 mb-2">District Colors</p>
                     <div className="grid grid-cols-2 gap-1">
                         {Object.entries(districtColors).map(([name, color]) => (
                             <div key={name} className="flex items-center gap-2">
                                 <div className="w-3 h-3 rounded-sm" style={{ backgroundColor: color }}></div>
-                                <span className="text-xs text-gray-400">{name}</span>
+                                <span className="text-xs text-gray-600 dark:text-gray-400">{name}</span>
                             </div>
                         ))}
                     </div>
