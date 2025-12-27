@@ -1,0 +1,297 @@
+{
+    "type": "FeatureCollection",
+    "features": [
+        {
+            "type": "Feature",
+            "properties": {
+                "name": "Galle",
+                "code": "LK-31",
+                "province": "Southern",
+                "color": "#3B82F6"
+            },
+            "geometry": {
+                "type": "Polygon",
+                "coordinates": [
+                    [
+                        [
+                            80.0,
+                            5.95
+                        ],
+                        [
+                            80.4,
+                            5.95
+                        ],
+                        [
+                            80.45,
+                            6.15
+                        ],
+                        [
+                            80.35,
+                            6.35
+                        ],
+                        [
+                            80.1,
+                            6.35
+                        ],
+                        [
+                            80.0,
+                            6.15
+                        ],
+                        [
+                            80.0,
+                            5.95
+                        ]
+                    ]
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "name": "Matara",
+                "code": "LK-32",
+                "province": "Southern",
+                "color": "#8B5CF6"
+            },
+            "geometry": {
+                "type": "Polygon",
+                "coordinates": [
+                    [
+                        [
+                            80.4,
+                            5.9
+                        ],
+                        [
+                            80.7,
+                            5.9
+                        ],
+                        [
+                            80.7,
+                            6.35
+                        ],
+                        [
+                            80.45,
+                            6.35
+                        ],
+                        [
+                            80.4,
+                            6.15
+                        ],
+                        [
+                            80.4,
+                            5.9
+                        ]
+                    ]
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "name": "Kalutara",
+                "code": "LK-13",
+                "province": "Western",
+                "color": "#EC4899"
+            },
+            "geometry": {
+                "type": "Polygon",
+                "coordinates": [
+                    [
+                        [
+                            79.9,
+                            6.35
+                        ],
+                        [
+                            80.3,
+                            6.35
+                        ],
+                        [
+                            80.35,
+                            6.55
+                        ],
+                        [
+                            80.25,
+                            6.8
+                        ],
+                        [
+                            79.95,
+                            6.8
+                        ],
+                        [
+                            79.9,
+                            6.55
+                        ],
+                        [
+                            79.9,
+                            6.35
+                        ]
+                    ]
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "name": "Ratnapura",
+                "code": "LK-91",
+                "province": "Sabaragamuwa",
+                "color": "#F59E0B"
+            },
+            "geometry": {
+                "type": "Polygon",
+                "coordinates": [
+                    [
+                        [
+                            80.2,
+                            6.4
+                        ],
+                        [
+                            80.75,
+                            6.4
+                        ],
+                        [
+                            80.75,
+                            6.85
+                        ],
+                        [
+                            80.45,
+                            7.1
+                        ],
+                        [
+                            80.2,
+                            7.05
+                        ],
+                        [
+                            80.2,
+                            6.4
+                        ]
+                    ]
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "name": "Badulla",
+                "code": "LK-81",
+                "province": "Uva",
+                "color": "#10B981"
+            },
+            "geometry": {
+                "type": "Polygon",
+                "coordinates": [
+                    [
+                        [
+                            80.75,
+                            6.7
+                        ],
+                        [
+                            81.25,
+                            6.7
+                        ],
+                        [
+                            81.25,
+                            7.15
+                        ],
+                        [
+                            80.85,
+                            7.15
+                        ],
+                        [
+                            80.75,
+                            6.95
+                        ],
+                        [
+                            80.75,
+                            6.7
+                        ]
+                    ]
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "name": "Kandy",
+                "code": "LK-21",
+                "province": "Central",
+                "color": "#EF4444"
+            },
+            "geometry": {
+                "type": "Polygon",
+                "coordinates": [
+                    [
+                        [
+                            80.4,
+                            7.0
+                        ],
+                        [
+                            80.75,
+                            7.0
+                        ],
+                        [
+                            80.8,
+                            7.35
+                        ],
+                        [
+                            80.65,
+                            7.55
+                        ],
+                        [
+                            80.4,
+                            7.5
+                        ],
+                        [
+                            80.35,
+                            7.25
+                        ],
+                        [
+                            80.4,
+                            7.0
+                        ]
+                    ]
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "name": "Nuwara Eliya",
+                "code": "LK-23",
+                "province": "Central",
+                "color": "#06B6D4"
+            },
+            "geometry": {
+                "type": "Polygon",
+                "coordinates": [
+                    [
+                        [
+                            80.45,
+                            6.85
+                        ],
+                        [
+                            80.95,
+                            6.85
+                        ],
+                        [
+                            80.95,
+                            7.15
+                        ],
+                        [
+                            80.75,
+                            7.15
+                        ],
+                        [
+                            80.55,
+                            7.05
+                        ],
+                        [
+                            80.45,
+                            6.85
+                        ]
+                    ]
+                ]
+            }
+        }
+    ]
+}

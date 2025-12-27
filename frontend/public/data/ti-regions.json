@@ -1,0 +1,342 @@
+[
+    {
+        "id": 1,
+        "district": "Galle",
+        "tiRegion": "Baddegama",
+        "address": "Sigithi', Boralukada, Baddegama",
+        "coordinates": [
+            6.1562234,
+            80.19346
+        ]
+    },
+    {
+        "id": 2,
+        "district": "Galle",
+        "tiRegion": "Nakiyadeniya",
+        "address": "No: 13th mile post, Thellabura, Nakiyadeniya",
+        "coordinates": [
+            6.1095863,
+            80.3347061
+        ]
+    },
+    {
+        "id": 3,
+        "district": "Galle",
+        "tiRegion": "Thawalama",
+        "address": "Malgalla, Thalangalla, Thawalama",
+        "coordinates": [
+            6.3092213,
+            80.3572581
+        ]
+    },
+    {
+        "id": 4,
+        "district": "Galle",
+        "tiRegion": "Harangala",
+        "address": "Jaya Geeth, Yatalamaththa, Galle",
+        "coordinates": [
+            6.1724483,
+            80.2833211
+        ]
+    },
+    {
+        "id": 5,
+        "district": "Galle",
+        "tiRegion": "Akmeemana",
+        "address": "No.122, Lechchami B Wattha, Ihalagoda, Akmeemana",
+        "coordinates": [
+            6.0719564,
+            80.2731695
+        ]
+    },
+    {
+        "id": 6,
+        "district": "Matara",
+        "tiRegion": "Akuressa",
+        "address": "Mahakurundu watte, Matara road, Akuressa",
+        "coordinates": [
+            6.0891333,
+            80.4742671
+        ]
+    },
+    {
+        "id": 7,
+        "district": "Matara",
+        "tiRegion": "Urubokka",
+        "address": "Sampath, Katuwana road, Urubokka",
+        "coordinates": [
+            6.2966536,
+            80.6426425
+        ]
+    },
+    {
+        "id": 8,
+        "district": "Matara",
+        "tiRegion": "Deniyaya",
+        "address": "Udu Kumbura hena, Miriswatte rd, Deniyaya",
+        "coordinates": [
+            6.3500997,
+            80.5608495
+        ]
+    },
+    {
+        "id": 9,
+        "district": "Matara",
+        "tiRegion": "Morawaka",
+        "address": "Welegedara Watte, Morawaka",
+        "coordinates": [
+            6.2613712,
+            80.489886
+        ]
+    },
+    {
+        "id": 10,
+        "district": "Matara",
+        "tiRegion": "Kotapola",
+        "address": "Gamage hardware, Kotapola",
+        "coordinates": [
+            6.2782104,
+            80.5434145
+        ]
+    },
+    {
+        "id": 11,
+        "district": "Kalutara",
+        "tiRegion": "Ingiriya",
+        "address": "Elsmore, 4th Lane, Panadura Road, Ingiriya",
+        "coordinates": [
+            6.7418953,
+            80.1645251
+        ]
+    },
+    {
+        "id": 12,
+        "district": "Kalutara",
+        "tiRegion": "Elpitiya",
+        "address": "No:4E, Kimbulawala, Aluthgama Rd, Elpitiya",
+        "coordinates": [
+            6.2989458,
+            80.1615876
+        ]
+    },
+    {
+        "id": 13,
+        "district": "Kalutara",
+        "tiRegion": "Bellana",
+        "address": "Kithulgoda, Bellana",
+        "coordinates": [
+            6.5181894,
+            80.1724451
+        ]
+    },
+    {
+        "id": 14,
+        "district": "Badulla",
+        "tiRegion": "Haliela",
+        "address": "No:148/15 Station road, Haliela",
+        "coordinates": [
+            6.9553272,
+            81.0313117
+        ]
+    },
+    {
+        "id": 15,
+        "district": "Badulla",
+        "tiRegion": "Passara",
+        "address": "No:7, Kanuwa, Palgahatanna, Passara",
+        "coordinates": [
+            6.9522551,
+            81.1173108
+        ]
+    },
+    {
+        "id": 16,
+        "district": "Badulla",
+        "tiRegion": "Bandarawela",
+        "address": "Sri Lanka Tea Board, Regional Office, Vishaka Road, Bandarawela",
+        "coordinates": [
+            6.8417568,
+            80.9868795
+        ]
+    },
+    {
+        "id": 17,
+        "district": "Badulla",
+        "tiRegion": "Nugathalawa",
+        "address": "Sakunika, Girabe, Nugathalawa",
+        "coordinates": [
+            6.9126473,
+            80.8808291
+        ]
+    },
+    {
+        "id": 18,
+        "district": "Ratnapura",
+        "tiRegion": "Palmadulla",
+        "address": "Near the Palmadulla Police Station, Ganegama, Palmadulla",
+        "coordinates": [
+            6.6330531,
+            80.5183865
+        ]
+    },
+    {
+        "id": 19,
+        "district": "Ratnapura",
+        "tiRegion": "Balangoda",
+        "address": "Weeragamini mawatha, Ellapola, Balangoda",
+        "coordinates": [
+            6.6317496,
+            80.6851293
+        ]
+    },
+    {
+        "id": 20,
+        "district": "Ratnapura",
+        "tiRegion": "Ruwanwella",
+        "address": "No:297/3, Kiriwana Road, Wandala, Ruwanwella",
+        "coordinates": [
+            7.0357392,
+            80.2578551
+        ]
+    },
+    {
+        "id": 21,
+        "district": "Ratnapura",
+        "tiRegion": "Rakwana",
+        "address": "No:33/10, Telecom Road, Rakwana",
+        "coordinates": [
+            6.4748483,
+            80.6083121
+        ]
+    },
+    {
+        "id": 22,
+        "district": "Ratnapura",
+        "tiRegion": "Hidellena",
+        "address": "No:68, Muththettupita, Hidellena",
+        "coordinates": [
+            6.7184073,
+            80.3755081
+        ]
+    },
+    {
+        "id": 23,
+        "district": "Ratnapura",
+        "tiRegion": "Kalawana",
+        "address": "Malrenu, Raddalla Road, Manana, Kalawana",
+        "coordinates": [
+            6.5271623,
+            80.3962893
+        ]
+    },
+    {
+        "id": 24,
+        "district": "Kandy",
+        "tiRegion": "Ethgala",
+        "address": "No:800/2/1, Nawalapitiya Road, Ethgala",
+        "coordinates": [
+            7.1355192,
+            80.567659
+        ]
+    },
+    {
+        "id": 25,
+        "district": "Kandy",
+        "tiRegion": "Matale",
+        "address": "FJRR+5MG Matale",
+        "coordinates": [
+            7.4904434,
+            80.6391298
+        ]
+    },
+    {
+        "id": 26,
+        "district": "Kandy",
+        "tiRegion": "Muruthalawa",
+        "address": "No:48d, Gannoruwa, Muruthalawa",
+        "coordinates": [
+            7.2807056,
+            80.5912252
+        ]
+    },
+    {
+        "id": 27,
+        "district": "Kandy",
+        "tiRegion": "Gampola",
+        "address": "No:266/50, 11th lane, Jayamalapura, Gampola",
+        "coordinates": [
+            7.1461372,
+            80.5641141
+        ]
+    },
+    {
+        "id": 28,
+        "district": "Kandy",
+        "tiRegion": "Katugasthota",
+        "address": "No:170/6, Samagi MW, Ranawana Rd, Katugasthota",
+        "coordinates": [
+            7.3336213,
+            80.6126381
+        ]
+    },
+    {
+        "id": 29,
+        "district": "Kandy",
+        "tiRegion": "Handessa",
+        "address": "No:08/02, Naranwala, Handessa",
+        "coordinates": [
+            7.2349809,
+            80.5760761
+        ]
+    },
+    {
+        "id": 30,
+        "district": "Nuwara Eliya",
+        "tiRegion": "Walapane",
+        "address": "No:171/1, Watarakgoda, Wathumulla, Walapane",
+        "coordinates": [
+            7.1000013,
+            80.8652671
+        ]
+    },
+    {
+        "id": 31,
+        "district": "Nuwara Eliya",
+        "tiRegion": "Hatton",
+        "address": "No.2, Salvadora building, Fruit Hill, Hatton",
+        "coordinates": [
+            6.8968193,
+            80.5884021
+        ]
+    },
+    {
+        "id": 32,
+        "district": "Nuwara Eliya",
+        "tiRegion": "Lindula",
+        "address": "No:350/1/A, Nuwaraeliya road, Lindula",
+        "coordinates": [
+            6.9289833,
+            80.6817111
+        ]
+    },
+    {
+        "id": 33,
+        "district": "Nuwara Eliya",
+        "tiRegion": "Ginigathhena",
+        "address": "Delhena Road, Ginigathhena",
+        "coordinates": [
+            6.9878575,
+            80.4910796
+        ]
+    },
+    {
+        "id": 34,
+        "district": "Nuwara Eliya",
+        "tiRegion": "Harangala",
+        "address": "Shawanthi, Harangalagama, Harangala",
+        "coordinates": [
+            7.0512095,
+            80.5883508
+        ]
+    }
+]

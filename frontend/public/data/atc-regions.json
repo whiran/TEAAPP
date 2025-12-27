@@ -1,0 +1,79 @@
+[
+    {
+        "id": 1,
+        "name": "Regional Office – Galle",
+        "district": "Galle",
+        "address": "Sri Lanka Tea Board, Regional Office, Walahanduwa Waththa, Walahanduwa",
+        "coordinates": [
+            6.0511933,
+            80.2574651
+        ],
+        "atcRegion": "Walahanduwa"
+    },
+    {
+        "id": 2,
+        "name": "Regional Office, Matara",
+        "district": "Matara",
+        "address": "Sri Lanka Tea Board, Regional Office, No 23, New lane, Uyanwatta, Matara",
+        "coordinates": [
+            5.9503322,
+            80.5488976
+        ],
+        "atcRegion": "Matara"
+    },
+    {
+        "id": 3,
+        "name": "Regional Office, Baduraliya",
+        "district": "Kalutara",
+        "address": "Sri Lanka Tea Board, Regional Office, Wathurana Road, Baduraliya",
+        "coordinates": [
+            6.5187272,
+            80.2279735
+        ],
+        "atcRegion": "Baduraliya"
+    },
+    {
+        "id": 4,
+        "name": "Regional Office Bandarawela",
+        "district": "Badulla",
+        "address": "Sri Lanka Tea Board, Regional Office, Vishaka Road, Bandarawela",
+        "coordinates": [
+            6.8418373,
+            80.9868795
+        ],
+        "atcRegion": "Bandarawela"
+    },
+    {
+        "id": 5,
+        "name": "Regional Office Rathnapura",
+        "district": "Ratnapura",
+        "address": "Sri Lanka Tea Board, Regional Office, No: 1/61, New Town, Rathnapura",
+        "coordinates": [
+            6.7090364,
+            80.3784402
+        ],
+        "atcRegion": "Rathnapura"
+    },
+    {
+        "id": 6,
+        "name": "Regional Office Gampola",
+        "district": "Kandy",
+        "address": "Sri Lanka Tea Board, Regional Office, No 140, Ambagamuwa Road, Gampola",
+        "coordinates": [
+            7.1646391,
+            80.5642834
+        ],
+        "atcRegion": "Gampola"
+    },
+    {
+        "id": 7,
+        "name": "Regional Office, Nuwaraeliya",
+        "district": "Nuwara Eliya",
+        "address": "Sri Lanka Tea Board, Regional Office, No. 10, Kalegala, Nanuoya Rd, NuwaraEliya",
+        "coordinates": [
+            6.9568953,
+            80.7670851
+        ],
+        "atcRegion": "NuwaraEliya"
+    }
+]
