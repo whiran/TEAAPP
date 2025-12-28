@@ -83,65 +83,46 @@ export default function RegionalMap() {
     // Unique districts from data
     const uniqueDistricts = Array.from(new Set([...atcRegions.map(a => a.district), ...tiRegions.map(t => t.district)])).sort();
 
-    // Fetch weather data
+
+    // Fetch weather data from Tomorrow.io via backend API
     const fetchWeather = useCallback(async (lat: number, lon: number): Promise<WeatherData | null> => {
         try {
-            const response = await fetch(`http://localhost:8000/api/weather/risk?lat=${lat}&lon=${lon}`);
+            const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+            const response = await fetch(`${API_URL}/api/weather/risk?lat=${lat}&lon=${lon}`);
             if (response.ok) {
                 const data = await response.json();
 
-                // Occasionally generate extreme conditions for demo (20% chance)
-                const isExtreme = Math.random() < 0.2;
-                const extremeType = Math.floor(Math.random() * 4);
+                // Note: Backend returns RiskAssessment, we need to extract weather data
+                // For now, use forecast_summary to build WeatherData
+                // In a production app, we'd have a separate realtime weather endpoint
 
-                let windSpeed = Math.round(5 + Math.random() * 15);
-                let humidity = Math.round(70 + Math.random() * 25);
-                let precipitation = Math.round(Math.random() * 5 * 10) / 10;
-                let temperature = Math.round(20 + Math.random() * 10);
+                const forecast = data.forecast_summary || [];
+                const current = forecast[0] || {};
 
-                if (isExtreme) {
-                    switch (extremeType) {
-                        case 0: // High wind
-                            windSpeed = Math.round(45 + Math.random() * 30);
-                            break;
-                        case 1: // Heavy rain
-                            precipitation = Math.round(60 + Math.random() * 50);
-                            break;
-                        case 2: // Extreme humidity
-                            humidity = Math.round(96 + Math.random() * 3);
-                            break;
-                        case 3: // Heat wave
-                            temperature = Math.round(38 + Math.random() * 5);
-                            break;
-                    }
-                }
-
-                // Transform to WeatherData format
+                // Transform Tomorrow.io risk assessment to WeatherData format
                 return {
-                    temperature,
-                    feelsLike: Math.round(temperature + 2),
-                    humidity,
-                    windSpeed,
+                    temperature: current.temperature || 25,
+                    feelsLike: current.temperature ? current.temperature + 2 : 27,
+                    humidity: current.humidity || 75,
+                    windSpeed: Math.round(5 + Math.random() * 15), // TODO: Add wind data to backend
                     windDirection: ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'][Math.floor(Math.random() * 8)],
                     pressure: Math.round(1010 + Math.random() * 10),
                     visibility: Math.round(5 + Math.random() * 10),
-                    precipitation,
+                    precipitation: 0, // TODO: Add to backend response
                     clouds: Math.round(30 + Math.random() * 60),
-                    condition: ['clear', 'clouds', 'rain', 'drizzle'][Math.floor(Math.random() * 4)],
-                    icon: '☀️',
-                    hourly: [
-                        { time: '2PM', temp: 27, icon: '☀️' },
-                        { time: '3PM', temp: 28, icon: '⛅' },
-                        { time: '4PM', temp: 27, icon: '🌧️' },
-                        { time: '5PM', temp: 26, icon: '🌧️' },
-                        { time: '6PM', temp: 25, icon: '⛅' },
-                        { time: '7PM', temp: 24, icon: '🌙' },
-                    ],
-                    daily: [
-                        { day: 'Today', high: 29, low: 22, icon: '⛅' },
-                        { day: 'Tue', high: 28, low: 21, icon: '🌧️' },
-                        { day: 'Wed', high: 30, low: 23, icon: '☀️' },
-                    ],
+                    condition: data.risk_level === 'HIGH' ? 'rain' : 'clouds',
+                    icon: current.weather_icon || '☀️',
+                    hourly: forecast.map((day: any, idx: number) => ({
+                        time: `${12 + idx}PM`,
+                        temp: day.temperature || 25,
+                        icon: day.weather_icon || '☀️'
+                    })).slice(0, 6),
+                    daily: forecast.map((day: any) => ({
+                        day: new Date(day.date).toLocaleDateString('en-US', { weekday: 'short' }),
+                        high: Math.round(day.temperature + 3),
+                        low: Math.round(day.temperature - 5),
+                        icon: day.weather_icon || '⛅'
+                    })).slice(0, 3),
                     airQuality: {
                         aqi: Math.round(30 + Math.random() * 80),
                         level: 'Good',

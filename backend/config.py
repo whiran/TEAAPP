@@ -21,8 +21,15 @@ class Settings:
     PF_WINDY_API_KEY: str = os.getenv("PF_WINDY_API_KEY", "")  # Point Forecast API
     MP_WINDY_API_KEY: str = os.getenv("MP_WINDY_API_KEY", "")  # Map Forecast API
     
-    # Meteosource API
+    # Meteosource API (Legacy - being replaced)
     METEOSOURCE_API_KEY: str = os.getenv("METEOSOURCE_API_KEY", "")
+    
+    # Tomorrow.io API (New primary weather provider)
+    TOMORROWIO_API_KEY: str = os.getenv("TOMORROWIO_API_KEY", "")
+    TOMORROWIO_BASE_URL: str = os.getenv("TOMORROWIO_BASE_URL", "https://api.tomorrow.io/v4")
+    
+    # Cache Settings
+    WEATHER_CACHE_TTL: int = int(os.getenv("WEATHER_CACHE_TTL", "300"))  # 5 minutes
 
 
 @lru_cache()

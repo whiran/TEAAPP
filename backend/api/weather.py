@@ -1,11 +1,12 @@
 """
 Weather API Router for Ceylon Tea Intelligence Platform.
 Provides endpoints for weather forecasts and disease risk assessment.
+Uses Tomorrow.io API for real-time weather data.
 """
 
 from fastapi import APIRouter, Query, HTTPException
 
-from services.weather_service import get_weather_risk, RiskAssessment
+from services.tomorrowio_service import get_weather_risk, RiskAssessment
 
 
 router = APIRouter()
@@ -19,14 +20,17 @@ async def get_risk_assessment(
     """
     Get Blister Blight disease risk assessment for a location.
     
-    Based on the Meteosource 7-day forecast, analyzes temperature and humidity
-    conditions to predict disease risk.
+    Uses Tomorrow.io 7-day forecast to analyze temperature and humidity
+    conditions for tea disease prediction.
     
+    **Risk Levels:**
     - **HIGH**: humidity > 90% AND temp < 25°C for 3+ consecutive days
     - **MODERATE**: humidity > 85% AND temp < 27°C for 2+ consecutive days  
     - **LOW**: Otherwise
     
-    Returns risk level, detailed advice, and 3-day forecast summary.
+    **Returns:** Risk level, detailed advice, and 3-day forecast summary.
+    
+    **Note:** Data sourced from Tomorrow.io Weather API
     """
     try:
         return await get_weather_risk(lat, lon)
