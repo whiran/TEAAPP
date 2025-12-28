@@ -228,7 +228,7 @@ docker-compose build backend --no-cache
 
 ## 📄 License
 
-[Your License Here]
+MIT License
 
 ## 👥 Contributors
 
