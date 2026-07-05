@@ -1,0 +1,40 @@
+﻿Sheets: ['Sheet1', 'Sheet4', 'Sheet2', 'Sheet3']
+
+=== Sheet: Sheet1 | rows=1056 cols=26 ===
+Headers: ['Facno', 'facName', 'YearEstablished', 'Method', 'IsActive', 'GramaNiladhariDivision', 'Village', 'ElevationHeight', 'GreenTeaAvgQty', 'FacAddress', 'capacity', 'Elvation', 'subelevation', 'AdminDistrict', 'DSDivision', 'ATCReg', 'InspectorRegion', 'Agrodiv', 'ManagementType', 'Location', 'Latitude', 'Longitude', 'Url', None, None, None]
+  Row 2: ['MF0003', 'OLIPHANT', 2021.0, 'OTHER', 0.0, '535N Kalapura/Shanthipura', 'Shanthipura', 6700.0, 6500.0, 'Nuwaraeliya ', 'NULL', 'High', 'WESTERN-HIGH', 'NUWARA ELIYA', 'Nuwara Eliya', 'NUWARA ELIYA', 'KOTHMALE', 'NUWARA ELIYA', 'MANAGEMENT COMPANY', ' View Map ', 6.9673121, 80.7365865, 'https://www.google.com/maps/search/Oliphant Tea Factory', None, None, None]
+  Row 3: ['MF0004', 'MATTAKELLE', 1914.0, 'OTHER', 1.0, 'Talawakelle', 'Talawakelle', 4500.0, 90000.0, 'Mattakelle Estate, Lindula', 55000.0, 'High', 'WESTERN-HIGH', 'NUWARA ELIYA', 'Nuwara Eliya', 'NUWARA ELIYA', 'THALAWAKELLE', 'NANUOYA LINDULA TALAWAKELE', 'MANAGEMENT COMPANY', ' View Map ', 6.9284718, 80.6976056, 'https://www.google.com/maps/search/Mattakelle Tea Factory', None, None, None]
+
+=== Sheet: Sheet4 | rows=1056 cols=10 ===
+Headers: ['FacNo', 'Factory Name', 'Distrct', 'DS', 'GS', 'Village', 'Address', 'URL', 'Lant', 'Long']
+  Row 2: [None, 'Oliphant Tea Factory', None, None, None, 'Shanthipura', 'Nuwaraeliya ', ' View Map ', '6.975252829955047, 80.74849149503648', None]
+  Row 3: [None, 'Mattakelle Tea Factory', None, None, None, 'Talawakelle', 'Mattakelle Estate, Lindula', ' View Map ', '6.921636301218905, 80.70075018264798', None]
+
+=== Sheet: Sheet2 | rows=41 cols=2 ===
+Headers: ['ATC Region', 'Tea Inspector Range']
+  Row 2: ['#REF!', 'KOTHMALE']
+  Row 3: [None, 'THALAWAKELLE']
+
+=== Sheet: Sheet3 | rows=1000 cols=26 ===
+Headers: [None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None]
+  Row 2: [None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None]
+  Row 3: ['ATC Region', 'RATNAPURA', None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None]
+
+Sheet 'Sheet1' lat(col 21)/lon(col 22): WITH=1053, WITHOUT=2
+
+Sheet 'Sheet4' lat(col None)/lon(col 10): WITH=0, WITHOUT=1055
+
+Sheet 'Sheet2': No lat/lon columns found
+
+Sheet 'Sheet3': No lat/lon columns found
+
+Sheet 'Sheet1': FacNo col=1 (Facno), unique facnos=1055
+  Sample: ['MF1520', 'BF0154', 'MF1402', 'MF1377', 'MF1437']
+
+Sheet 'Sheet4': FacNo col=1 (FacNo), unique facnos=0
+  Sample: []
+
+Sheet 'Sheet2': No FacNo column found
+
+Sheet 'Sheet3': No FacNo column found
+

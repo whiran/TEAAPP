@@ -49,6 +49,17 @@ const districtColors: Record<string, string> = {
     'Nuwara Eliya': '#06B6D4',
 };
 
+// Tea-growing districts to filter from official GeoJSON
+const TEA_DISTRICTS: Record<string, string> = {
+    'Galle District': 'Galle',
+    'Matara District': 'Matara',
+    'Kalutara District': 'Kalutara',
+    'Ratnapura District': 'Ratnapura',
+    'Badulla District': 'Badulla',
+    'Kandy District': 'Kandy',
+    'Nuwara Eliya District': 'Nuwara Eliya',
+};
+
 export default function RegionalMap() {
     const mapContainerRef = useRef<HTMLDivElement>(null);
     const mapInstanceRef = useRef<Map | null>(null);
@@ -141,16 +152,7 @@ export default function RegionalMap() {
         }
     }, []);
 
-    // Tea-growing districts to filter from official GeoJSON
-    const TEA_DISTRICTS: Record<string, string> = {
-        'Galle District': 'Galle',
-        'Matara District': 'Matara',
-        'Kalutara District': 'Kalutara',
-        'Ratnapura District': 'Ratnapura',
-        'Badulla District': 'Badulla',
-        'Kandy District': 'Kandy',
-        'Nuwara Eliya District': 'Nuwara Eliya',
-    };
+
 
     // Load data files
     useEffect(() => {

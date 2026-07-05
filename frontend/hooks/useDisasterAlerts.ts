@@ -3,7 +3,7 @@
  * Polls Tomorrow.io Alerts API every 4 hours for active disaster warnings.
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 
 export interface DisasterAlert {
     id: string;
@@ -24,12 +24,13 @@ interface UseDisasterAlertsReturn {
     alerts: DisasterAlert[];
     loading: boolean;
     error: string | null;
+    lastUpdated: Date | null;
     refetch: () => Promise<void>;
 }
 
 /**
  * Custom hook to fetch and manage disaster alerts
- * 
+ *
  * @param lat - Latitude (default: Nuwara Eliya, Sri Lanka)
  * @param lon - Longitude (default: Nuwara Eliya, Sri Lanka)
  * @param pollInterval - Polling interval in ms (default: 4 hours)
@@ -40,10 +41,12 @@ export function useDisasterAlerts(
     pollInterval: number = 14400000 // 4 hours in milliseconds
 ): UseDisasterAlertsReturn {
     const [alerts, setAlerts] = useState<DisasterAlert[]>([]);
-    const [loading, setLoading] = useState(false);
+    // Start as true so the spinner shows immediately — avoids a blank flash
+    const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
 
-    const fetchAlerts = async () => {
+    const fetchAlerts = useCallback(async () => {
         setLoading(true);
         setError(null);
 
@@ -52,31 +55,35 @@ export function useDisasterAlerts(
             const response = await fetch(`${API_URL}/api/alerts/active?lat=${lat}&lon=${lon}`);
 
             if (!response.ok) {
-                throw new Error(`Failed to fetch alerts: ${response.statusText}`);
+                throw new Error(`Server responded with ${response.status}: ${response.statusText}`);
             }
 
             const data: DisasterAlert[] = await response.json();
             setAlerts(data);
+            setLastUpdated(new Date());
             console.log(`✅ Fetched ${data.length} disaster alerts`);
         } catch (err) {
-            const errorMessage = err instanceof Error ? err.message : 'Unknown error fetching alerts';
+            const errorMessage =
+                err instanceof Error
+                    ? err.message
+                    : 'Unknown error fetching alerts';
             setError(errorMessage);
             console.error('❌ Error fetching disaster alerts:', errorMessage);
         } finally {
             setLoading(false);
         }
-    };
+    }, [lat, lon]);
 
     useEffect(() => {
         // Fetch immediately on mount
         fetchAlerts();
 
-        // Set up polling interval (4 hours)
+        // Set up polling interval (default: 4 hours)
         const interval = setInterval(fetchAlerts, pollInterval);
 
         // Cleanup on unmount
         return () => clearInterval(interval);
-    }, [lat, lon, pollInterval]);
+    }, [fetchAlerts, pollInterval]);
 
-    return { alerts, loading, error, refetch: fetchAlerts };
+    return { alerts, loading, error, lastUpdated, refetch: fetchAlerts };
 }

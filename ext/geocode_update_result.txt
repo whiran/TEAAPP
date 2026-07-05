@@ -1,0 +1,40 @@
+﻿============================================================
+Tea Factory Coordinate Update - _v2 file
+============================================================
+Sheet1 columns: 26
+  Lat col: 21, Lon col: 22
+
+Geocoding Row 86: MF0160 | Pussatenna
+  Address: Pussatenne Estate,Panvilatenna,Gampola.
+  District: KANDY
+  Trying query: 'Pussatenne Estate,Panvilatenna,Gampola., KANDY, Sri Lanka'
+  No result.
+  Trying query: 'Pussatenne Estate,Panvilatenna,Gampola., Sri Lanka'
+  No result.
+  Trying query: 'KANDY, Sri Lanka'
+  SUCCESS: lat=7.2931208, lon=80.6350358
+
+Geocoding Row 289: MF0572 | Hoptan 
+  Address: LunugalaBadulla
+  District: BADULLA
+  Trying query: 'LunugalaBadulla, BADULLA, Sri Lanka'
+  No result.
+  Trying query: 'LunugalaBadulla, Sri Lanka'
+  No result.
+  Trying query: 'BADULLA, Sri Lanka'
+  SUCCESS: lat=6.9900353, lon=81.0570315
+
+Fixed 2 missing coordinates.
+
+Saving updated xlsx to: e:\Cybersecurity\Apps\TEAAPP\ext\Registered Tea Factories All Island_v2_geocoded.xlsx
+Saved!
+
+Exporting factories.json...
+  Total rows: 1055
+  With coordinates: 1055
+  Without coordinates (skipped): 0
+  Saved to: e:\Cybersecurity\Apps\TEAAPP\frontend\public\data\factories.json
+
+============================================================
+Done!
+============================================================

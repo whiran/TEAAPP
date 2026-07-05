@@ -1,0 +1,25 @@
+
+=== Sheet: Sheet1 | rows=1056 cols=20 ===
+Headers: ['Facno', 'facName', 'YearEstablished', 'Method', 'IsActive', 'GramaNiladhariDivision', 'Village', 'ElevationHeight', 'GreenTeaAvgQty', 'FacAddress', 'capacity', 'Elvation', 'subelevation', 'AdminDistrict', 'DSDivision', 'ATCReg', 'InspectorRegion', 'Agrodiv', 'ManagementType', 'Location']
+  Row 2: ['MF0003', 'OLIPHANT', 2021, 'OTHER', 0, '535N Kalapura/Shanthipura', 'Shanthipura', 6700, 6500, 'Nuwaraeliya ', 'NULL', 'High', 'WESTERN-HIGH', 'NUWARA ELIYA', 'Nuwara Eliya', 'NUWARA ELIYA', 'KOTHMALE', 'NUWARA ELIYA', 'MANAGEMENT COMPANY', ' View Map ']
+  Row 3: ['MF0004', 'MATTAKELLE', 1914, 'OTHER', 1, 'Talawakelle', 'Talawakelle', 4500, 90000, 'Mattakelle Estate, Lindula', 55000, 'High', 'WESTERN-HIGH', 'NUWARA ELIYA', 'Nuwara Eliya', 'NUWARA ELIYA', 'THALAWAKELLE', 'NANUOYA LINDULA TALAWAKELE', 'MANAGEMENT COMPANY', ' View Map ']
+  Row 4: ['MF0005', 'STONY CLIFF GROUP', 1925, 'OTHER', 1, 'Kotagala', 'Kotagala', 4670, 64000, 'Stony cliff Group, Kotagala, Nuwara Eliya', 64000, 'High', 'WESTERN-HIGH', 'NUWARA ELIYA', 'kothmale', 'NUWARA ELIYA', 'KOTHMALE', 'PATANA KOTAGALA', 'MANAGEMENT COMPANY', ' View Map ']
+  Row 5: ['MF0006', 'Nagastenne Refuse Tea Processing', 2020, 'OTHER', 1, 'Seaporth', None, 0, 30000, 'Nagastenna Estate, Nawalapitiya', 30000, 'Medium', 'WESTERN-MEDIUM', 'KANDY', 'Pasbage Korale', 'GAMPOLA', 'NAWALAPITIYA', 'GAMPOLA NAWALAPITIYA DOLOSBAGE', 'SLSPC/JEDB', ' View Map ']
+
+=== Sheet: Sheet4 | rows=1056 cols=10 ===
+Headers: ['FacNo', 'Factory Name', 'Distrct', 'DS', 'GS', 'Village', 'Address', 'URL', 'Lant', 'Long']
+  Row 2: [None, 'Oliphant Tea Factory', None, None, None, 'Shanthipura', 'Nuwaraeliya ', ' View Map ', None, None]
+  Row 3: [None, 'Mattakelle Tea Factory', None, None, None, 'Talawakelle', 'Mattakelle Estate, Lindula', ' View Map ', None, None]
+  Row 4: [None, 'Stony Cliff Group Tea Factory', None, None, None, 'Kotagala', 'Stony cliff Group, Kotagala, Nuwara Eliya', ' View Map ', None, None]
+  Row 5: [None, 'Nagastenne Refuse Tea Processing Tea Factory', None, None, None, 0, 'Nagastenna Estate, Nawalapitiya', ' View Map ', None, None]
+
+Sheet4 lat/long: WITH=0, WITHOUT=1055
+
+Sheet1 Facnos: 1055 | Sheet4 FacNos: 0
+Common: 0
+Sample S1 facnos: ['MF0594', 'MF1214', 'MF1570', 'MF1057', 'MF1401']
+Sample S4 facnos: []
+
+Sheet1 full headers: ['Facno', 'facName', 'YearEstablished', 'Method', 'IsActive', 'GramaNiladhariDivision', 'Village', 'ElevationHeight', 'GreenTeaAvgQty', 'FacAddress', 'capacity', 'Elvation', 'subelevation', 'AdminDistrict', 'DSDivision', 'ATCReg', 'InspectorRegion', 'Agrodiv', 'ManagementType', 'Location']
+
+Sheet4 full headers: ['FacNo', 'Factory Name', 'Distrct', 'DS', 'GS', 'Village', 'Address', 'URL', 'Lant', 'Long']

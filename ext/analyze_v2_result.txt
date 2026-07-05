@@ -1,0 +1,57 @@
+﻿======================================================================
+SHEET1 ANALYSIS
+======================================================================
+All headers: ['Facno', 'facName', 'YearEstablished', 'Method', 'IsActive', 'GramaNiladhariDivision', 'Village', 'ElevationHeight', 'GreenTeaAvgQty', 'FacAddress', 'capacity', 'Elvation', 'subelevation', 'AdminDistrict', 'DSDivision', 'ATCReg', 'InspectorRegion', 'Agrodiv', 'ManagementType', 'Location', 'Latitude', 'Longitude', 'Url', None, None, None]
+Lat col (idx 21): 'Latitude', Lon col (idx 22): 'Longitude'
+Url col (idx 23): 'Url'
+
+Rows MISSING coordinates in Sheet1:
+  Row 86: MF0160 | Pussatenna | Pussatenne Estate,Panvilatenna,Gampola. | KANDY | lat=None lon=None
+  Row 289: MF0572 | Hoptan  | LunugalaBadulla | BADULLA | lat=None lon=None
+
+Total missing: 2
+
+======================================================================
+SHEET4 ANALYSIS
+======================================================================
+All headers: ['FacNo', 'Factory Name', 'Distrct', 'DS', 'GS', 'Village', 'Address', 'URL', 'Lant', 'Long']
+
+Sheet4 coordinate data (first 10 rows):
+  Row 2: Oliphant Tea Factory | Lant='6.975252829955047, 80.74849149503648' | Long='None'
+  Row 3: Mattakelle Tea Factory | Lant='6.921636301218905, 80.70075018264798' | Long='None'
+  Row 4: Stony Cliff Group Tea Factory | Lant='6.930383529930729, 80.6049803145954' | Long='None'
+  Row 5: Nagastenne Refuse Tea Processing Tea Factory | Lant='7.0713334933020295, 80.43588482480764' | Long='None'
+  Row 6: Galamuduna Tea Factory | Lant='None' | Long='None'
+  Row 7: Goorookoya Tea Factory | Lant='None' | Long='None'
+  Row 8: Enselwatte Tea Factory | Lant='None' | Long='None'
+  Row 9: Kalugolla Tea Factory | Lant='None' | Long='None'
+  Row 10: Diyagama West Tea Factory | Lant='None' | Long='None'
+  Row 11: Diyagama East Tea Factory | Lant='None' | Long='None'
+
+Sheet4 Lant col: with_data=4, without=1051, parseable_as_lat_lon=4
+
+======================================================================
+COMPARISON: Sheet1 vs Sheet4 coordinates
+======================================================================
+
+First 5 rows comparison:
+Row 2: S1=OLIPHANT lat=6.9673121 lon=80.7365865
+        S4=Oliphant Tea Factory lat=6.975252829955047 lon=80.74849149503648
+        Difference: lat_diff=0.007940729955047132, lon_diff=0.01190499503647402
+
+Row 3: S1=MATTAKELLE lat=6.9284718 lon=80.6976056
+        S4=Mattakelle Tea Factory lat=6.921636301218905 lon=80.70075018264798
+        Difference: lat_diff=0.006835498781094351, lon_diff=0.00314458264797679
+
+Row 4: S1=STONY CLIFF GROUP lat=6.9415366 lon=80.6007733
+        S4=Stony Cliff Group Tea Factory lat=6.930383529930729 lon=80.6049803145954
+        Difference: lat_diff=0.011153070069271465, lon_diff=0.004207014595394298
+
+Row 5: S1=Nagastenne Refuse Tea Processing lat=7.857685 lon=80.70625
+        S4=Nagastenne Refuse Tea Processing Tea Factory lat=7.0713334933020295 lon=80.43588482480764
+        Difference: lat_diff=0.7863515066979705, lon_diff=0.27036517519235304
+
+Row 6: S1=GALAMUDUNA lat=7.4495205 lon=80.8820558
+        S4=Galamuduna Tea Factory lat=None lon=None
+        Difference: lat_diff=N/A, lon_diff=N/A
+

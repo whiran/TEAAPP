@@ -56,6 +56,7 @@ export default function Navigation() {
                         <NavLink href="/">Dashboard</NavLink>
                         <NavLink href="/weathermap">Weather Map</NavLink>
                         <NavLink href="/estates">Estates</NavLink>
+                        <NavLink href="/factories">🏭 Factories</NavLink>
                         <NavLink href="/analytics">Analytics</NavLink>
                         <NavLink href="/alerts">Disaster Alerts</NavLink>
                         <NavLink href="/reports">Reports</NavLink>
@@ -95,6 +96,9 @@ export default function Navigation() {
                         </NavLink>
                         <NavLink href="/estates" onClick={() => setIsMobileMenuOpen(false)}>
                             Estates
+                        </NavLink>
+                        <NavLink href="/factories" onClick={() => setIsMobileMenuOpen(false)}>
+                            🏭 Factories
                         </NavLink>
                         <NavLink href="/analytics" onClick={() => setIsMobileMenuOpen(false)}>
                             Analytics

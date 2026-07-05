@@ -1,21 +1,77 @@
 # Ceylon Tea Intelligence Platform 🍵
 
-A production-ready geospatial intelligence platform for Ceylon tea estates, featuring interactive mapping, data analysis, and real-time insights.
+A production-ready geospatial intelligence platform for Ceylon tea estates, featuring interactive mapping, weather intelligence, disaster alerting, and factory management.
 
 ## 🏗️ Architecture
 
 This is a **monorepo** containing:
 - **Frontend**: Next.js 15 with App Router, Tailwind CSS, Shadcn UI, and Leaflet.js
-- **Backend**: Python FastAPI with geospatial capabilities (geopandas, PostGIS)
+- **Backend**: Python FastAPI with geospatial capabilities (geopandas, PostGIS) + Tomorrow.io integration
 - **Database**: PostgreSQL 16 with PostGIS extension for geospatial queries
+
+## 📁 Project Structure
+
+```
+TEAAPP/
+├── frontend/                      # Next.js 15 Application
+│   ├── app/                      # App Router pages
+│   │   ├── layout.tsx            # Root layout (ThemeProvider, Leaflet CSS)
+│   │   ├── globals.css           # Design tokens, dark mode, Leaflet fixes
+│   │   ├── page.tsx              # Dashboard (WeatherMap + live stats)
+│   │   ├── weathermap/           # Regional Map (ATC, TI, District boundaries)
+│   │   ├── factories/            # Factory Map (1,055 registered factories)
+│   │   ├── alerts/               # Disaster Alerts Center (Tomorrow.io)
+│   │   ├── analytics/            # Analytics Dashboard (Phase 2 - Coming Soon)
+│   │   ├── estates/              # Estate Management (Phase 2 - Coming Soon)
+│   │   └── reports/              # Reports Generator (Phase 2 - Coming Soon)
+│   ├── components/
+│   │   ├── Navigation.tsx        # Responsive navbar + dark mode toggle
+│   │   ├── ThemeProvider.tsx     # Dark/light mode context
+│   │   ├── ThemeToggle.tsx       # Sun/moon toggle button
+│   │   └── map/
+│   │       ├── WeatherMap.tsx    # Dashboard map (Windy layers + estate polygons)
+│   │       ├── RegionalMap.tsx   # ATC/TI/district boundary GeoJSON map
+│   │       ├── FactoryMap.tsx    # Factory pins with filter panel
+│   │       └── FactoryFilterPanel.tsx
+│   ├── hooks/
+│   │   └── useDisasterAlerts.ts  # 4-hour polling hook (Tomorrow.io)
+│   ├── public/
+│   │   └── data/                 # Static GeoJSON and factory data
+│   ├── Phase2_spec.md            # Phase 2 technical specification (Agri-Met engine)
+│   ├── next.config.js
+│   ├── tailwind.config.ts
+│   └── package.json
+│
+├── backend/                       # FastAPI Application
+│   ├── api/
+│   │   ├── alerts.py             # GET /api/alerts/active
+│   │   ├── analytics.py          # GET /api/analytics (Phase 2 stub)
+│   │   ├── factories.py          # GET /api/factories (filterable)
+│   │   ├── tea_lands.py          # GET /api/tea-lands (PostGIS polygons)
+│   │   └── weather.py            # GET /api/weather/risk (Blister Blight)
+│   ├── services/
+│   │   ├── alert_service.py      # Tomorrow.io Events + Flood Risk logic
+│   │   ├── tomorrowio_service.py # Tomorrow.io API client
+│   │   └── weather_service.py   # Meteosource + Blister Blight risk model
+│   ├── main.py                   # FastAPI app, CORS, router registration
+│   ├── config.py                 # Settings (API keys via pydantic/dotenv)
+│   ├── models.py                 # TeaLand, TeaEstate, ProductionRecord
+│   ├── database.py               # SQLAlchemy engine + session
+│   ├── init_db.py                # Database initialisation script
+│   └── requirements.txt
+│
+├── docker-compose.yml             # Service orchestration
+├── .gitignore
+└── README.md
+```
 
 ## 📋 Prerequisites
 
 - **Docker** (v20.10+)
 - **Docker Compose** (v2.0+)
 - **Git**
-- **Node.js** (v20+) - for local frontend development
-- **Python** (v3.11+) - for local backend development
+- **Node.js** (v20+) — for local frontend development
+- **Python** (v3.11+) — for local backend development
 
 ## 🚀 Quick Start
 
@@ -26,7 +82,33 @@ git clone <repository-url>
 cd TEAAPP
 ```
 
-### 2. Start All Services
+### 2. Configure API Keys
+
+Create a `.env` file in the **repo root** (next to `docker-compose.yml`):
+
+```env
+# Tomorrow.io — Disaster Alerts & Weather Events
+TOMORROWIO_API_KEY=your_key_here
+TOMORROWIO_BASE_URL=https://api.tomorrow.io/v4
+
+# Windy — Weather Layer Visualisation
+PF_WINDY_API_KEY=your_point_forecast_key
+MP_WINDY_API_KEY=your_map_forecast_key
+
+# Meteosource — Agri-Met analytics (Phase 2)
+METEOSOURCE_API_KEY=your_key_here
+```
+
+Also create `backend/.env` for local development:
+
+```env
+DATABASE_URL=postgresql://tea_admin:tea_secure_pass_2024@localhost:5432/ceylon_tea_db
+TOMORROWIO_API_KEY=your_key_here
+PF_WINDY_API_KEY=your_key_here
+MP_WINDY_API_KEY=your_key_here
+```
+
+### 3. Start All Services
 
 ```bash
 # Build and start all services (frontend, backend, database)
@@ -36,14 +118,17 @@ docker-compose up --build
 docker-compose up -d --build
 ```
 
-### 3. Access the Application
+### 4. Access the Application
 
-- **Frontend**: http://localhost:3000
-- **Backend API**: http://localhost:8000
-- **API Documentation**: http://localhost:8000/docs
-- **Database**: localhost:5432 (credentials in docker-compose.yml)
+| Service | URL |
+|---|---|
+| Frontend | http://localhost:3000 |
+| Backend API | http://localhost:8000 |
+| Swagger Docs | http://localhost:8000/docs |
+| ReDoc | http://localhost:8000/redoc |
+| Database | localhost:5432 |
 
-### 4. Stop Services
+### 5. Stop Services
 
 ```bash
 docker-compose down
@@ -62,16 +147,11 @@ cd frontend
 # Install dependencies
 npm install
 
-# Run development server (outside Docker)
+# Run development server
 npm run dev
 
 # Build for production
 npm run build
-
-# Install Shadcn UI components
-npx shadcn-ui@latest add button
-npx shadcn-ui@latest add card
-# ... add more components as needed
 ```
 
 ### Backend Development (FastAPI)
@@ -79,150 +159,65 @@ npx shadcn-ui@latest add card
 ```bash
 cd backend
 
-# Create virtual environment
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
+# Activate virtual environment (repo root .venv)
+../.venv/Scripts/activate   # Windows
+source ../.venv/bin/activate # macOS/Linux
 
 # Install dependencies
 pip install -r requirements.txt
 
-# Run development server (outside Docker)
+# Run development server
 uvicorn main:app --reload --host 0.0.0.0 --port 8000
 ```
 
-### Database Management
+## 🗺️ Pages & Features
 
-```bash
-# Access PostgreSQL container
-docker exec -it ceylon-tea-db psql -U tea_admin -d ceylon_tea_db
-
-# Verify PostGIS extension
-SELECT PostGIS_version();
-
-# Create tables (example)
-docker exec -it ceylon-tea-backend python -c "from database import engine, Base; Base.metadata.create_all(bind=engine)"
-```
-
-## 📁 Project Structure
-
-```
-TEAAPP/
-├── frontend/                   # Next.js 15 Application
-│   ├── app/                   # App Router pages
-│   │   ├── layout.tsx         # Root layout
-│   │   └── page.tsx           # Home page
-│   ├── components/            # React components
-│   │   └── ui/                # Shadcn UI components
-│   ├── public/                # Static assets
-│   ├── styles/                # Global styles
-│   ├── Dockerfile             # Frontend container
-│   ├── package.json           # Dependencies
-│   ├── tailwind.config.ts     # Tailwind configuration
-│   ├── components.json        # Shadcn UI config
-│   └── next.config.js         # Next.js configuration
-│
-├── backend/                    # FastAPI Application
-│   ├── api/                   # API routes
-│   │   └── __init__.py
-│   ├── models/                # Database models
-│   │   └── __init__.py
-│   ├── main.py                # FastAPI entry point
-│   ├── database.py            # Database connection
-│   ├── requirements.txt       # Python dependencies
-│   └── Dockerfile             # Backend container
-│
-├── docker-compose.yml          # Service orchestration
-├── .gitignore                  # Git ignore rules
-└── README.md                   # This file
-```
-
-## 🔧 Environment Variables
-
-### Frontend (.env.local)
-```env
-NEXT_PUBLIC_API_URL=http://localhost:8000
-```
-
-### Backend (.env)
-```env
-DATABASE_URL=postgresql://tea_admin:tea_secure_pass_2024@database:5432/ceylon_tea_db
-```
-
-## 🗺️ Key Features
-
-### Geospatial Capabilities
-- **PostGIS**: Advanced geospatial queries for tea land polygons
-- **geopandas**: Python library for geospatial data manipulation
-- **Leaflet.js**: Interactive maps with layer controls
-
-### Tech Stack Details
-
-| Layer | Technology | Purpose |
-|-------|-----------|---------|
-| Frontend | Next.js 15 | React framework with App Router |
-| UI Framework | Tailwind CSS | Utility-first CSS |
-| UI Components | Shadcn UI | Accessible component library |
-| Maps | Leaflet.js | Interactive mapping |
-| Backend | FastAPI | High-performance Python API |
-| Database | PostgreSQL 16 | Relational database |
-| GIS Extension | PostGIS 3.4 | Geospatial operations |
-| ORM | SQLAlchemy | Database abstraction |
-| Geospatial | geopandas | Geospatial data processing |
+| Route | Feature | Status |
+|---|---|---|
+| `/` | Dashboard + WeatherMap | ✅ Live |
+| `/weathermap` | Regional boundaries (ATC / TI / Districts) | ✅ Live |
+| `/factories` | 1,055 factory map with multi-filter | ✅ Live |
+| `/alerts` | Disaster Alerts Center (Tomorrow.io) | ✅ Live |
+| `/analytics` | Yield trends, disease risk (Phase 2) | 🔜 Coming Soon |
+| `/estates` | Estate registry & management (Phase 2) | 🔜 Coming Soon |
+| `/reports` | Automated report generation (Phase 2) | 🔜 Coming Soon |
 
 ## 🔍 API Endpoints
 
-- `GET /` - API root
-- `GET /health` - Health check endpoint
-- `GET /docs` - Interactive API documentation (Swagger UI)
-- `GET /redoc` - Alternative API documentation
-
-## 🧪 Testing
-
-```bash
-# Frontend tests
-cd frontend
-npm run test
-
-# Backend tests
-cd backend
-pytest
-```
-
-## 📦 Building for Production
-
-```bash
-# Build production images
-docker-compose -f docker-compose.yml build
-
-# Run in production mode
-docker-compose -f docker-compose.yml up -d
-```
+| Method | Endpoint | Description |
+|---|---|---|
+| GET | `/` | API root |
+| GET | `/health` | Health check |
+| GET | `/docs` | Swagger UI |
+| GET | `/api/factories` | All factories (filterable) |
+| GET | `/api/factories/filters` | Distinct filter values |
+| GET | `/api/alerts/active?lat=&lon=` | Active disaster alerts |
+| GET | `/api/weather/risk?lat=&lon=` | Blister Blight risk |
+| GET | `/api/tea-lands` | Tea land polygons |
+| GET | `/api/analytics` | Analytics (Phase 2 stub) |
 
 ## 🐛 Troubleshooting
 
+### Alerts page shows "No Active Alerts"
+Verify `TOMORROWIO_API_KEY` is set in both `backend/.env` and the root `.env`. The backend logs will show the error if the key is missing.
+
 ### Database Connection Issues
 ```bash
-# Check if database is running
 docker-compose ps
-
-# View database logs
 docker-compose logs database
-
-# Restart database service
 docker-compose restart database
 ```
 
 ### Frontend Build Errors
 ```bash
-# Clear Next.js cache
 cd frontend
 rm -rf .next node_modules
 npm install
+npm run dev
 ```
 
 ### Backend Dependencies
 ```bash
-# Rebuild backend container
 docker-compose build backend --no-cache
 ```
 
@@ -230,14 +225,6 @@ docker-compose build backend --no-cache
 
 MIT License
 
-## 👥 Contributors
-
-[Your Team Here]
-
-## 🤝 Contributing
-
-Please read CONTRIBUTING.md for details on our code of conduct and the process for submitting pull requests.
-
 ---
 
-**Built with ❤️ for Ceylon Tea Industry**
+**Built with ❤️ for the Ceylon Tea Industry**

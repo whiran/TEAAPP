@@ -32,10 +32,18 @@ services:
     environment:
       DATABASE_URL: postgresql://tea_admin:tea_secure_pass_2024@database:5432/ceylon_tea_db
       PYTHONUNBUFFERED: 1
+      # Weather / Alert API Keys — set these in a .env file in the repo root
+      TOMORROWIO_API_KEY: ${TOMORROWIO_API_KEY:-}
+      TOMORROWIO_BASE_URL: ${TOMORROWIO_BASE_URL:-https://api.tomorrow.io/v4}
+      PF_WINDY_API_KEY: ${PF_WINDY_API_KEY:-}
+      MP_WINDY_API_KEY: ${MP_WINDY_API_KEY:-}
+      METEOSOURCE_API_KEY: ${METEOSOURCE_API_KEY:-}
+      WEATHER_CACHE_TTL: ${WEATHER_CACHE_TTL:-300}
     ports:
       - "8000:8000"
     volumes:
       - ./backend:/app
+      - ./frontend/public/data:/frontend/public/data:ro
     depends_on:
       database:
         condition: service_healthy

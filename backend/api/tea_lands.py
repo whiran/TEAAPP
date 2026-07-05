@@ -68,6 +68,11 @@ async def create_estate(
                 detail=f"Invalid geometry type: {geom_shape.geom_type}. Must be Polygon or MultiPolygon."
             )
         
+        # Convert Polygon to MultiPolygon to match database MULTIPOLYGON column type
+        from shapely.geometry import MultiPolygon
+        if geom_shape.geom_type == 'Polygon':
+            geom_shape = MultiPolygon([geom_shape])
+        
         # Create database model
         db_estate = TeaEstate(
             name=estate.name,

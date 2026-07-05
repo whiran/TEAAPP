@@ -3,8 +3,12 @@ from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 import os
 
+# Import database engine and models to support automatic table creation
+from database import Base, engine
+import models
+
 # Import routers (add as you create them)
-from api import tea_lands, weather, alerts
+from api import tea_lands, weather, alerts, factories, analytics
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -12,6 +16,11 @@ async def lifespan(app: FastAPI):
     # Startup
     print("🚀 Ceylon Tea Intelligence Platform API starting...")
     print(f"📊 Database URL: {os.getenv('DATABASE_URL', 'Not configured')}")
+    try:
+        Base.metadata.create_all(bind=engine)
+        print("✅ Database tables initialized/checked successfully.")
+    except Exception as e:
+        print(f"❌ Error initializing database tables: {e}")
     yield
     # Shutdown
     print("👋 Shutting down API...")
@@ -64,4 +73,5 @@ async def health_check():
 app.include_router(tea_lands.router, prefix="/api/tea-lands", tags=["Tea Lands"])
 app.include_router(weather.router, prefix="/api/weather", tags=["Weather"])
 app.include_router(alerts.router, prefix="/api/alerts", tags=["Disaster Alerts"])
-# app.include_router(analytics.router, prefix="/api/analytics", tags=["Analytics"])
+app.include_router(factories.router, prefix="/api/factories", tags=["Factories"])
+app.include_router(analytics.router, prefix="/api/analytics", tags=["Analytics"])

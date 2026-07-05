@@ -74,7 +74,7 @@ export default function TeaMap() {
                 // Add Draw Control
                 const drawControl = new L.Control.Draw({
                     draw: {
-                        polygon: true,
+                        polygon: {},
                         polyline: false,
                         rectangle: false,
                         circle: false,
