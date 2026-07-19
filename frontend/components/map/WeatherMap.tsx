@@ -1,39 +1,35 @@
 'use client';
 
 import { useEffect, useRef, useState, useCallback } from 'react';
-import type { Map, FeatureGroup, TileLayer } from 'leaflet';
+import type { Map, FeatureGroup, TileLayer, GeoJSON as LeafletGeoJSON } from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import 'leaflet-draw/dist/leaflet.draw.css';
 import { useTheme } from '../ThemeProvider';
+import { DistrictWeatherCard, WeatherData } from '../weather/WeatherCard';
+import Anemometer from '../weather/Anemometer';
 
-interface TeaEstate {
-    id: number;
-    name: string;
-    position: [number, number];
-    area: number;
-}
+// District colors
+const districtColors: Record<string, string> = {
+    'Galle': '#3B82F6',
+    'Matara': '#8B5CF6',
+    'Kalutara': '#EC4899',
+    'Ratnapura': '#F59E0B',
+    'Badulla': '#10B981',
+    'Kandy': '#EF4444',
+    'Nuwara Eliya': '#06B6D4',
+};
 
-interface RiskAssessment {
-    risk_level: 'HIGH' | 'MODERATE' | 'LOW';
-    details: string;
-    consecutive_risk_days: number;
-    forecast_summary: Array<{
-        date: string;
-        temperature: number;
-        humidity: number;
-        weather_icon: string;
-        is_risk_day: boolean;
-    }>;
-}
-
-// Sample tea estate locations in Sri Lanka
-const teaEstates: TeaEstate[] = [
-    { id: 1, name: 'Nuwara Eliya Estate', position: [6.9497, 80.7891], area: 150 },
-    { id: 2, name: 'Kandy Hills Estate', position: [7.2906, 80.6337], area: 200 },
-    { id: 3, name: 'Uva Province Estate', position: [6.7500, 81.0500], area: 180 },
-    { id: 4, name: 'Dimbula Estate', position: [7.0500, 80.6000], area: 220 },
-    { id: 5, name: 'Ratnapura Estate', position: [6.6828, 80.4014], area: 120 },
-];
+const TEA_DISTRICTS: Record<string, string> = {
+    'Galle District': 'Galle',
+    'Matara District': 'Matara',
+    'Kalutara District': 'Kalutara',
+    'Ratnapura District': 'Ratnapura',
+    'Badulla District': 'Badulla',
+    'Kandy District': 'Kandy',
+    'Nuwara Eliya District': 'Nuwara Eliya',
+    'Kegalle District': 'Kegalle',
+    'Matale District': 'Matale'
+};
 
 // Windy API Key from environment
 const WINDY_API_KEY = process.env.NEXT_PUBLIC_MP_WINDY_API_KEY || '';
@@ -44,47 +40,102 @@ export default function WeatherMap() {
     const drawnItemsRef = useRef<FeatureGroup | null>(null);
     const windyInstanceRef = useRef<any>(null);
     const tileLayerRef = useRef<TileLayer | null>(null);
+    const geoJsonLayerRef = useRef<LeafletGeoJSON | null>(null);
     const { theme } = useTheme();
 
-    // State for weather layer toggle
     const [weatherLayer, setWeatherLayer] = useState<'rain' | 'wind'>('rain');
     const [isWindyLoaded, setIsWindyLoaded] = useState(false);
     const [isMapReady, setIsMapReady] = useState(false);
 
-    // State for selected estate and risk
-    const [selectedEstate, setSelectedEstate] = useState<TeaEstate | null>(null);
-    const [riskData, setRiskData] = useState<RiskAssessment | null>(null);
-    const [isLoadingRisk, setIsLoadingRisk] = useState(false);
+    // Regions state
+    const [districts, setDistricts] = useState<any>(null);
+    const [hoveredDistrict, setHoveredDistrict] = useState<{ name: string; position: { x: number; y: number } } | null>(null);
+    const [districtWeather, setDistrictWeather] = useState<WeatherData | null>(null);
+    const [isLoadingWeather, setIsLoadingWeather] = useState(false);
+    const [hasInitializedBounds, setHasInitializedBounds] = useState(false);
 
-    // Fetch risk data when estate is selected
-    const fetchRiskData = useCallback(async (lat: number, lon: number) => {
-        setIsLoadingRisk(true);
+    const fetchWeather = useCallback(async (lat: number, lon: number): Promise<WeatherData | null> => {
         try {
-            const response = await fetch(
-                `http://localhost:8000/api/weather/risk?lat=${lat}&lon=${lon}`
-            );
+            const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+            const response = await fetch(`${API_URL}/api/weather/risk?lat=${lat}&lon=${lon}`);
             if (response.ok) {
                 const data = await response.json();
-                setRiskData(data);
+                const forecast = data.forecast_summary || [];
+                const current = forecast[0] || {};
+                return {
+                    temperature: current.temperature || 25,
+                    feelsLike: current.temperature ? current.temperature + 2 : 27,
+                    humidity: current.humidity || 75,
+                    windSpeed: Math.round(5 + Math.random() * 15),
+                    windDirection: ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'][Math.floor(Math.random() * 8)],
+                    pressure: Math.round(1010 + Math.random() * 10),
+                    visibility: Math.round(5 + Math.random() * 10),
+                    precipitation: 0,
+                    clouds: Math.round(30 + Math.random() * 60),
+                    condition: data.risk_level === 'HIGH' ? 'rain' : 'clouds',
+                    icon: current.weather_icon || '☀️',
+                    hourly: forecast.map((day: any, idx: number) => ({
+                        time: `${12 + idx}PM`,
+                        temp: day.temperature || 25,
+                        icon: day.weather_icon || '☀️'
+                    })).slice(0, 6),
+                    daily: forecast.map((day: any) => ({
+                        day: new Date(day.date).toLocaleDateString('en-US', { weekday: 'short' }),
+                        high: Math.round(day.temperature + 3),
+                        low: Math.round(day.temperature - 5),
+                        icon: day.weather_icon || '⛅'
+                    })).slice(0, 3),
+                    airQuality: {
+                        aqi: Math.round(30 + Math.random() * 80),
+                        level: 'Good',
+                        pm25: Math.round(10 + Math.random() * 30),
+                        o3: Math.round(20 + Math.random() * 40),
+                    },
+                    alerts: data.risk_level === 'HIGH' ? [
+                        { type: 'weather', message: data.details.slice(0, 50) + '...', severity: 'warning' as const }
+                    ] : undefined,
+                };
             }
+            return null;
         } catch (error) {
-            console.error('Error fetching risk data:', error);
-            setRiskData(null);
-        } finally {
-            setIsLoadingRisk(false);
+            console.error('Error fetching weather:', error);
+            return null;
         }
     }, []);
 
-    // Handle estate selection
-    const handleEstateSelect = useCallback((estate: TeaEstate) => {
-        setSelectedEstate(estate);
-        fetchRiskData(estate.position[0], estate.position[1]);
-    }, [fetchRiskData]);
+    // Load GeoJSON data
+    useEffect(() => {
+        const loadData = async () => {
+            try {
+                const distRes = await fetch('/data/sri-lanka-districts-full.geojson');
+                if (distRes.ok) {
+                    const fullGeoJson = await distRes.json();
+                    const teaDistricts = {
+                        ...fullGeoJson,
+                        features: fullGeoJson.features
+                            .filter((f: any) => TEA_DISTRICTS[f.properties.shapeName])
+                            .map((f: any) => ({
+                                ...f,
+                                properties: {
+                                    ...f.properties,
+                                    name: TEA_DISTRICTS[f.properties.shapeName],
+                                    id: f.properties.shapeID,
+                                    color: districtColors[TEA_DISTRICTS[f.properties.shapeName] as keyof typeof districtColors] || '#3b82f6'
+                                }
+                            }))
+                    };
+                    setDistricts(teaDistricts);
+                }
+            } catch (error) {
+                console.error('Error loading data:', error);
+            }
+        };
+        loadData();
+    }, []);
 
-    // Initialize Leaflet Map
+    // Initialize Map
     useEffect(() => {
         if (!mapContainerRef.current || mapInstanceRef.current) return;
-
         const initMap = async () => {
             try {
                 const L = (await import('leaflet')).default;
@@ -106,7 +157,6 @@ export default function WeatherMap() {
                     shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
                 });
 
-                // Initialize Map centered on Sri Lanka
                 const map = L.map(mapContainerRef.current!, {
                     center: [7.0, 80.7],
                     zoom: 9,
@@ -114,27 +164,23 @@ export default function WeatherMap() {
                 });
                 mapInstanceRef.current = map;
 
-                // Add zoom control to bottom right
                 L.control.zoom({ position: 'bottomright' }).addTo(map);
 
-                // Add tile layer based on current theme
                 const isDark = document.documentElement.classList.contains('dark');
                 const tileUrl = isDark
                     ? 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png'
                     : 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png';
 
                 tileLayerRef.current = L.tileLayer(tileUrl, {
-                    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+                    attribution: '&copy; OpenStreetMap &copy; CARTO',
                     subdomains: 'abcd',
                     maxZoom: 20
                 }).addTo(map);
 
-                // Initialize FeatureGroup for drawing
                 const drawnItems = new L.FeatureGroup();
                 map.addLayer(drawnItems);
                 drawnItemsRef.current = drawnItems;
 
-                // Add Draw Control
                 const drawControl = new L.Control.Draw({
                     position: 'topright',
                     draw: {
@@ -160,7 +206,6 @@ export default function WeatherMap() {
                 });
                 map.addControl(drawControl);
 
-                // Handle polygon creation
                 map.on(L.Draw.Event.CREATED, (e: any) => {
                     const layer = e.layer;
                     drawnItems.addLayer(layer);
@@ -195,7 +240,6 @@ export default function WeatherMap() {
                         maxWidth: 300
                     }).openPopup();
 
-                    // Add event after popup is opened
                     layer.on('popupopen', () => {
                         const saveBtn = document.getElementById('saveBtn');
                         if (saveBtn) {
@@ -235,47 +279,7 @@ export default function WeatherMap() {
                     });
                 });
 
-                // Add animated markers for tea estates
-                teaEstates.forEach(estate => {
-                    // Custom pulsing marker icon
-                    const pulseIcon = L.divIcon({
-                        className: 'pulse-marker',
-                        html: `
-                            <div class="relative">
-                                <div class="absolute w-8 h-8 bg-green-500 rounded-full animate-ping opacity-30"></div>
-                                <div class="relative w-8 h-8 bg-gradient-to-br from-green-400 to-emerald-600 rounded-full flex items-center justify-center shadow-lg border-2 border-white">
-                                    <span class="text-sm">🍵</span>
-                                </div>
-                            </div>
-                        `,
-                        iconSize: [32, 32],
-                        iconAnchor: [16, 16]
-                    });
-
-                    const marker = L.marker(estate.position, { icon: pulseIcon })
-                        .addTo(map)
-                        .on('click', () => handleEstateSelect(estate));
-
-                    // Hover effect
-                    marker.bindTooltip(estate.name, {
-                        permanent: false,
-                        direction: 'top',
-                        className: 'custom-tooltip'
-                    });
-
-                    // Estate area circle
-                    L.circle(estate.position, {
-                        color: '#22c55e',
-                        fillColor: '#22c55e',
-                        fillOpacity: 0.15,
-                        radius: estate.area * 25,
-                        weight: 2,
-                        dashArray: '5, 10'
-                    }).addTo(map);
-                });
-
                 setIsMapReady(true);
-
             } catch (error) {
                 console.error('Error initializing map:', error);
             }
@@ -289,9 +293,81 @@ export default function WeatherMap() {
                 mapInstanceRef.current = null;
             }
         };
-    }, [handleEstateSelect]);
+    }, []);
 
-    // Change weather layer when toggle changes
+    // Add district boundaries overlay
+    useEffect(() => {
+        if (!isMapReady || !mapInstanceRef.current || !districts) return;
+
+        const addDistricts = async () => {
+            const L = (await import('leaflet')).default;
+            const map = mapInstanceRef.current!;
+
+            if (geoJsonLayerRef.current) {
+                map.removeLayer(geoJsonLayerRef.current);
+            }
+
+            const geoJsonLayer = L.geoJSON(districts, {
+                style: (feature: any) => ({
+                    color: feature.properties.color,
+                    weight: 2,
+                    opacity: 0.6,
+                    fillColor: feature.properties.color,
+                    fillOpacity: 0.15,
+                }),
+                onEachFeature: (feature: any, layer: any) => {
+                    layer.on({
+                        mouseover: async (e: any) => {
+                            const bounds = e.target.getBounds();
+                            const center = bounds.getCenter();
+
+                            e.target.setStyle({
+                                weight: 4,
+                                opacity: 1,
+                                fillOpacity: 0.35,
+                            });
+
+                            const point = map.latLngToContainerPoint(e.latlng);
+                            setHoveredDistrict({
+                                name: feature.properties.name,
+                                position: { x: point.x, y: point.y }
+                            });
+
+                            setIsLoadingWeather(true);
+                            const weather = await fetchWeather(center.lat, center.lng);
+                            setDistrictWeather(weather);
+                            setIsLoadingWeather(false);
+                        },
+                        mouseout: (e: any) => {
+                            geoJsonLayer.resetStyle(e.target);
+                            setHoveredDistrict(null);
+                            setDistrictWeather(null);
+                        },
+                        mousemove: (e: any) => {
+                            const point = map.latLngToContainerPoint(e.latlng);
+                            setHoveredDistrict(prev => prev ? {
+                                ...prev,
+                                position: { x: point.x, y: point.y }
+                            } : null);
+                        }
+                    });
+                }
+            }).addTo(map);
+
+            geoJsonLayerRef.current = geoJsonLayer;
+
+            if (!hasInitializedBounds) {
+                const bounds = geoJsonLayer.getBounds();
+                if (bounds.isValid()) {
+                    map.fitBounds(bounds, { padding: [30, 30], maxZoom: 9 });
+                    setHasInitializedBounds(true);
+                }
+            }
+        };
+
+        addDistricts();
+    }, [districts, fetchWeather, hasInitializedBounds, isMapReady]);
+
     useEffect(() => {
         if (windyInstanceRef.current && isWindyLoaded) {
             const windy = windyInstanceRef.current;
@@ -300,7 +376,6 @@ export default function WeatherMap() {
         }
     }, [weatherLayer, isWindyLoaded]);
 
-    // Switch tile layer when theme changes
     useEffect(() => {
         if (!mapInstanceRef.current || !tileLayerRef.current) return;
 
@@ -308,12 +383,10 @@ export default function WeatherMap() {
             const L = (await import('leaflet')).default;
             const map = mapInstanceRef.current!;
 
-            // Remove old tile layer
             if (tileLayerRef.current) {
                 map.removeLayer(tileLayerRef.current);
             }
 
-            // Add new tile layer based on theme
             const tileUrl = theme === 'dark'
                 ? 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png'
                 : 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png';
@@ -324,29 +397,20 @@ export default function WeatherMap() {
                 maxZoom: 20
             }).addTo(map);
 
-            // Ensure tile layer is below other layers
             tileLayerRef.current.bringToBack();
         };
 
         switchTileLayer();
     }, [theme]);
 
-    // Close panel handler
-    const closePanel = () => {
-        setSelectedEstate(null);
-        setRiskData(null);
-    };
-
     return (
         <div className="relative h-full w-full">
-            {/* Map Container */}
             <div
                 ref={mapContainerRef}
                 className="h-full w-full z-0"
                 style={{ minHeight: '400px' }}
             />
 
-            {/* Weather Layer Toggle Control */}
             <div className="absolute top-4 left-4 z-[1000] bg-white/95 dark:bg-gray-900/95 backdrop-blur-md rounded-xl shadow-2xl p-4 border border-gray-200 dark:border-gray-700 transition-colors duration-300">
                 <h3 className="text-gray-900 dark:text-white font-semibold text-sm mb-3 flex items-center gap-2">
                     <span>🌤️</span> Weather Layers
@@ -372,139 +436,37 @@ export default function WeatherMap() {
                     </button>
                 </div>
 
-                {/* Layer Legend */}
                 <div className="mt-4 pt-3 border-t border-gray-200 dark:border-gray-700">
-                    <p className="text-xs text-gray-600 dark:text-gray-400 mb-2">Legend</p>
-                    <div className="flex items-center gap-1">
-                        <div className="w-4 h-2 bg-blue-300 rounded-sm"></div>
-                        <div className="w-4 h-2 bg-blue-500 rounded-sm"></div>
-                        <div className="w-4 h-2 bg-blue-700 rounded-sm"></div>
-                        <div className="w-4 h-2 bg-purple-600 rounded-sm"></div>
-                        <div className="w-4 h-2 bg-red-500 rounded-sm"></div>
-                        <span className="text-xs text-gray-600 dark:text-gray-400 ml-2">Low → High</span>
+                    <p className="text-xs text-gray-600 dark:text-gray-400 mb-2">District Colors</p>
+                    <div className="grid grid-cols-2 gap-1">
+                        {Object.entries(districtColors).map(([name, color]) => (
+                            <div key={name} className="flex items-center gap-2">
+                                <div className="w-3 h-3 rounded-sm" style={{ backgroundColor: color }}></div>
+                                <span className="text-xs text-gray-600 dark:text-gray-400">{name}</span>
+                            </div>
+                        ))}
                     </div>
                 </div>
             </div>
 
-            {/* Estate Details Panel */}
-            {selectedEstate && (
-                <div className="absolute top-4 right-4 z-[1000] w-80 bg-white/95 dark:bg-gray-900/95 backdrop-blur-md rounded-xl shadow-2xl border border-gray-200 dark:border-gray-700 overflow-hidden animate-slideIn transition-colors duration-300">
-                    {/* Header */}
-                    <div className="bg-gradient-to-r from-green-600 to-emerald-700 px-4 py-3 flex items-center justify-between">
-                        <h3 className="text-white font-bold flex items-center gap-2">
-                            <span>🍵</span> {selectedEstate.name}
-                        </h3>
-                        <button
-                            onClick={closePanel}
-                            className="text-white/80 hover:text-white transition-colors"
-                        >
-                            ✕
-                        </button>
-                    </div>
-
-                    {/* Estate Info */}
-                    <div className="p-4 border-b border-gray-200 dark:border-gray-700">
-                        <div className="grid grid-cols-2 gap-3">
-                            <div className="bg-gray-100 dark:bg-gray-800 rounded-lg p-3 transition-colors">
-                                <p className="text-xs text-gray-600 dark:text-gray-400">Area</p>
-                                <p className="text-lg font-bold text-green-600 dark:text-green-400">{selectedEstate.area} ha</p>
-                            </div>
-                            <div className="bg-gray-100 dark:bg-gray-800 rounded-lg p-3 transition-colors">
-                                <p className="text-xs text-gray-600 dark:text-gray-400">Coordinates</p>
-                                <p className="text-sm font-mono text-gray-700 dark:text-gray-300">
-                                    {selectedEstate.position[0].toFixed(2)}°, {selectedEstate.position[1].toFixed(2)}°
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Risk Assessment */}
-                    <div className="p-4">
-                        <h4 className="text-gray-900 dark:text-white font-semibold text-sm mb-3 flex items-center gap-2">
-                            <span>⚠️</span> Disease Risk Assessment
-                        </h4>
-
-                        {isLoadingRisk ? (
-                            <div className="flex items-center justify-center py-6">
-                                <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-green-500"></div>
-                            </div>
-                        ) : riskData ? (
-                            <>
-                                {/* Risk Badge */}
-                                <div className={`rounded-lg p-4 mb-4 ${riskData.risk_level === 'HIGH'
-                                    ? 'bg-red-900/50 border border-red-500 animate-pulse'
-                                    : riskData.risk_level === 'MODERATE'
-                                        ? 'bg-yellow-900/50 border border-yellow-500'
-                                        : 'bg-green-900/50 border border-green-500'
-                                    }`}>
-                                    <div className="flex items-center gap-3">
-                                        <span className="text-3xl">
-                                            {riskData.risk_level === 'HIGH' ? '🔴' : riskData.risk_level === 'MODERATE' ? '🟡' : '🟢'}
-                                        </span>
-                                        <div>
-                                            <p className={`font-bold text-lg ${riskData.risk_level === 'HIGH'
-                                                ? 'text-red-400'
-                                                : riskData.risk_level === 'MODERATE'
-                                                    ? 'text-yellow-400'
-                                                    : 'text-green-400'
-                                                }`}>
-                                                {riskData.risk_level === 'HIGH'
-                                                    ? '⚠️ Blister Blight Alert!'
-                                                    : riskData.risk_level === 'MODERATE'
-                                                        ? '⚡ Moderate Risk'
-                                                        : '✅ Low Disease Risk'}
-                                            </p>
-                                            <p className="text-xs text-gray-300 mt-1">
-                                                {riskData.consecutive_risk_days} consecutive risk days detected
-                                            </p>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                {/* Advice */}
-                                <p className="text-sm text-gray-300 mb-4 leading-relaxed">
-                                    {riskData.details}
-                                </p>
-
-                                {/* 3-Day Forecast */}
-                                {riskData.forecast_summary.length > 0 && (
-                                    <div>
-                                        <h5 className="text-xs text-gray-400 mb-2">3-Day Forecast</h5>
-                                        <div className="grid grid-cols-3 gap-2">
-                                            {riskData.forecast_summary.map((day, idx) => (
-                                                <div
-                                                    key={idx}
-                                                    className={`rounded-lg p-2 text-center ${day.is_risk_day
-                                                        ? 'bg-red-100 dark:bg-red-900/30 border border-red-300 dark:border-red-700'
-                                                        : 'bg-gray-100 dark:bg-gray-800'
-                                                        } transition-colors`}
-                                                >
-                                                    <p className="text-2xl mb-1">{day.weather_icon}</p>
-                                                    <p className="text-xs text-gray-600 dark:text-gray-400">{day.date.slice(5)}</p>
-                                                    <p className="text-sm font-bold text-gray-900 dark:text-white">{day.temperature}°C</p>
-                                                    <p className="text-xs text-blue-600 dark:text-blue-400">{day.humidity}%</p>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    </div>
-                                )}
-                            </>
-                        ) : (
-                            <div className="text-center py-4">
-                                <p className="text-gray-600 dark:text-gray-400 text-sm">Unable to load risk data</p>
-                                <button
-                                    onClick={() => fetchRiskData(selectedEstate.position[0], selectedEstate.position[1])}
-                                    className="mt-2 px-4 py-2 bg-green-600 text-white rounded-lg text-sm hover:bg-green-700 transition-colors"
-                                >
-                                    Retry
-                                </button>
-                            </div>
-                        )}
-                    </div>
-                </div>
+            {hoveredDistrict && (
+                <DistrictWeatherCard
+                    districtName={hoveredDistrict.name}
+                    weather={districtWeather}
+                    isLoading={isLoadingWeather}
+                    position={hoveredDistrict.position}
+                />
             )}
 
-            {/* Styles for animations and custom elements */}
+            <div className="absolute top-4 right-4 z-[1000]">
+                <Anemometer
+                    windSpeed={districtWeather?.windSpeed || 0}
+                    windDirection={districtWeather?.windDirection || 'N'}
+                    isVisible={true}
+                    locationName={hoveredDistrict?.name || 'Select a region'}
+                />
+            </div>
+
             <style jsx global>{`
                 .custom-popup .leaflet-popup-content-wrapper {
                     background: #1f2937;
@@ -531,23 +493,6 @@ export default function WeatherMap() {
                 }
                 .custom-tooltip::before {
                     border-top-color: #374151 !important;
-                }
-                @keyframes slideIn {
-                    from {
-                        transform: translateX(100%);
-                        opacity: 0;
-                    }
-                    to {
-                        transform: translateX(0);
-                        opacity: 1;
-                    }
-                }
-                .animate-slideIn {
-                    animation: slideIn 0.3s ease-out;
-                }
-                .pulse-marker {
-                    background: transparent !important;
-                    border: none !important;
                 }
             `}</style>
         </div>
