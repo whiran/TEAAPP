@@ -1,0 +1,77 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: ceylon-tea-db-pvc
+  labels:
+    app: ceylon-tea
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ceylon-tea-db
+  labels:
+    app: ceylon-tea
+    component: database
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ceylon-tea
+      component: database
+  template:
+    metadata:
+      labels:
+        app: ceylon-tea
+        component: database
+    spec:
+      containers:
+        - name: postgres
+          image: postgis/postgis:16-3.4
+          ports:
+            - containerPort: 5432
+          env:
+            - name: POSTGRES_DB
+              valueFrom:
+                secretKeyRef:
+                  name: ceylon-tea-secrets
+                  key: POSTGRES_DB
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: ceylon-tea-secrets
+                  key: POSTGRES_USER
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: ceylon-tea-secrets
+                  key: POSTGRES_PASSWORD
+            - name: PGDATA
+              value: /var/lib/postgresql/data/pgdata
+          volumeMounts:
+            - name: db-storage
+              mountPath: /var/lib/postgresql/data
+      volumes:
+        - name: db-storage
+          persistentVolumeClaim:
+            claimName: ceylon-tea-db-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ceylon-tea-db
+  labels:
+    app: ceylon-tea
+    component: database
+spec:
+  ports:
+    - port: 5432
+      targetPort: 5432
+  selector:
+    app: ceylon-tea
+    component: database

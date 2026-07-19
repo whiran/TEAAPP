@@ -1,0 +1,138 @@
+apiVersion: image.openshift.io/v1
+kind: ImageStream
+metadata:
+  name: ceylon-tea-backend
+  labels:
+    app: ceylon-tea
+spec:
+  lookupPolicy:
+    local: true
+---
+apiVersion: build.openshift.io/v1
+kind: BuildConfig
+metadata:
+  name: ceylon-tea-backend
+  labels:
+    app: ceylon-tea
+spec:
+  source:
+    type: Git
+    git:
+      uri: https://github.com/whiran/TEAAPP.git
+    contextDir: backend
+  strategy:
+    type: Docker
+    dockerStrategy:
+      dockerfilePath: Dockerfile
+  output:
+    to:
+      kind: ImageStreamTag
+      name: ceylon-tea-backend:latest
+  triggers:
+    - type: ConfigChange
+    - type: ImageChange
+      imageChange: {}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ceylon-tea-backend
+  labels:
+    app: ceylon-tea
+    component: backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ceylon-tea
+      component: backend
+  template:
+    metadata:
+      labels:
+        app: ceylon-tea
+        component: backend
+    spec:
+      containers:
+        - name: backend
+          image: ceylon-tea-backend:latest
+          ports:
+            - containerPort: 8000
+          env:
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: ceylon-tea-secrets
+                  key: DATABASE_URL
+            - name: TOMORROWIO_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: ceylon-tea-secrets
+                  key: TOMORROWIO_API_KEY
+            - name: TOMORROWIO_BASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: ceylon-tea-secrets
+                  key: TOMORROWIO_BASE_URL
+            - name: PF_WINDY_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: ceylon-tea-secrets
+                  key: PF_WINDY_API_KEY
+            - name: MP_WINDY_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: ceylon-tea-secrets
+                  key: MP_WINDY_API_KEY
+            - name: METEOSOURCE_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: ceylon-tea-secrets
+                  key: METEOSOURCE_API_KEY
+            - name: WEATHER_CACHE_TTL
+              valueFrom:
+                secretKeyRef:
+                  name: ceylon-tea-secrets
+                  key: WEATHER_CACHE_TTL
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 15
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 20
+            periodSeconds: 20
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ceylon-tea-backend
+  labels:
+    app: ceylon-tea
+    component: backend
+spec:
+  ports:
+    - port: 8000
+      targetPort: 8000
+  selector:
+    app: ceylon-tea
+    component: backend
+---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: ceylon-tea-backend
+  labels:
+    app: ceylon-tea
+    component: backend
+spec:
+  to:
+    kind: Service
+    name: ceylon-tea-backend
+  port:
+    targetPort: 8000
+  tls:
+    termination: edge
